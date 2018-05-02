@@ -12,6 +12,6 @@
 */
 
 Route::get('/', function () {
-    app(\App\Services\Html\VKService::class)->run('meduzaproject');
+    app(\App\Services\Html\VKService::class)->run('club2');
     return view('welcome');
 });

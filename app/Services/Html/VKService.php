@@ -87,6 +87,7 @@ class VKService
         $result['is_verified'] = preg_match('#<b class="verified"></b>#i', $html);
         $result['is_closed'] = preg_match('#Закрытая группа#i', $html);
         $result['is_adult'] = preg_match('#Мне исполнилось 18 лет#i', $html);
+        $result['is_banned'] = preg_match('#Сообщество заблокировано в связи с возможным нарушением правил сайта.#i', $html);
         $result['type'] = preg_match('#mhi_back">Страница</span>#i', $html) ? self::TYPE_PUBLIC : self::TYPE_GROUP;
 
         if (preg_match('#<dt>Дата основания:</dt><dd>(.*)</dd>#i', $html, $opened_at)) {
