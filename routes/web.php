@@ -12,5 +12,6 @@
 */
 
 Route::get('/', function () {
+    app(\App\Services\Html\VKService::class)->run('avtopodbor48');
     return view('welcome');
 });
