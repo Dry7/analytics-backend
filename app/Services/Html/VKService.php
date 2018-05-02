@@ -221,33 +221,11 @@ class VKService
         return now()->year;
     }
 
-    public function loadAjaxWall()
-    {
-        $response = $this->client->request('POST', self::BASE_URL . 'al_wall.php', [
-            'form_params' => [
-                'act' => 'get_wall',
-                'al' => 1,
-                'fixed' => 41632,
-                'offset' => 9,
-                'onlyCache' => false,
-                'owner_id' => -48210134,
-                'type' => 'own',
-                'wall_start_from' => 10,
-            ]
-        ]);
-        $html = $response->getBody();
-        $skip = strpos($html, '<div id="post-');
-        if ($skip !== false) {
-            $html = substr($html, $skip, strlen($html));
-        }
-        $skip = strrpos($html, '</div>');
-        if ($skip !== false) {
-            $html = substr($html, 0, $skip+6);
-        }
-
-        return iconv('cp1251', 'utf-8', html_entity_decode($html));
-    }
-
+    /**
+     * @param int $groupId
+     * @param int $offset
+     * @return mixed
+     */
     public function loadWall(int $groupId, int $offset = 0)
     {
         $response = $this->client->request('GET', self::BASE_URL . 'wall-' . $groupId . '?offset=' . $offset, [
@@ -262,6 +240,11 @@ class VKService
         return $response->getBody();
     }
 
+    /**
+     * @param int $groupId
+     * @param int $offset
+     * @return \Generator
+     */
     private function wall(int $groupId, int $offset = 0): \Generator
     {
         $html = $this->loadWall($groupId, $offset);
@@ -290,6 +273,11 @@ class VKService
         }
     }
 
+    /**
+     * @param \DOMXPath $xpath
+     * @param \DOMElement $post
+     * @return int|null
+     */
     public function getPostId(\DOMXPath &$xpath, \DOMElement &$post): ?int
     {
         $id = $xpath->query('.//a[contains(@class, "post__anchor")]', $post);
@@ -301,6 +289,11 @@ class VKService
         return (int)array_last(explode('_', $id[0]->getAttribute('name')));
     }
 
+    /**
+     * @param \DOMXPath $xpath
+     * @param \DOMElement $post
+     * @return Carbon|null
+     */
     public function getPostDate(\DOMXPath &$xpath, \DOMElement &$post)
     {
         $date = $xpath->query('.//a[@class="wi_date"]', $post);
@@ -318,6 +311,12 @@ class VKService
         return $this->date2carbon($date[0]->textContent);
     }
 
+    /**
+     * @param \DOMXPath $xpath
+     * @param \DOMElement $post
+     * @param string $element
+     * @return int
+     */
     public function getCount(\DOMXPath &$xpath, \DOMElement &$post, string $element): int
     {
         $count = $xpath->query('.//b[@class="v_' . $element . '"]', $post);
@@ -336,6 +335,11 @@ class VKService
         return (int)$count;
     }
 
+    /**
+     * @param \DOMXPath $xpath
+     * @param \DOMElement $post
+     * @return int
+     */
     public function getComments(\DOMXPath &$xpath, \DOMElement &$post): int
     {
         try {
@@ -349,6 +353,10 @@ class VKService
         }
     }
 
+    /**
+     * @param string $text
+     * @return string
+     */
     public function decode(string $text): string
     {
 //        return iconv('cp1251', 'utf-8', iconv('utf-8', 'cp1252', $text));
