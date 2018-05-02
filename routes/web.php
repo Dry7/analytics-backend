@@ -12,6 +12,6 @@
 */
 
 Route::get('/', function () {
-    app(\App\Services\Html\VKService::class)->run('avtopodbor48');
+    app(\App\Services\Html\VKService::class)->run('meduzaproject');
     return view('welcome');
 });

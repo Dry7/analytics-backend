@@ -138,6 +138,31 @@ class VKService
      */
     private function date2carbon(string $date)
     {
+        switch ($date) {
+            case 'час назад':
+                return now()->subHour();
+
+            case 'два часа назад':
+                return now()->subHours(2);
+
+            case 'три часа назад':
+                return now()->subHours(3);
+
+            case 'четыре часа назад':
+                return now()->subHours(4);
+
+            case 'пять часов назад':
+                return now()->subHours(5);
+        }
+
+        if (preg_match('#\d (минут|минуты) назад#i', $date)) {
+            return now()->subMinutes((int)$date);
+        }
+
+        if (preg_match('#\d (секунду|секунды) назад#i', $date)) {
+            return now()->subSeconds((int)$date);
+        }
+
         $months = [
             'янв' => 1,
             'января' => 1,
@@ -148,11 +173,13 @@ class VKService
             'апр' => 4,
             'апреля' => 4,
             'мая' => 5,
+            'июн' => 6,
             'июня' => 6,
+            'июл' => 7,
             'июля' => 7,
             'авг' => 8,
             'августа' => 8,
-            'сент' => 9,
+            'сен' => 9,
             'сентября' => 9,
             'окт' => 10,
             'октября' => 10,
@@ -192,5 +219,139 @@ class VKService
         }
 
         return now()->year;
+    }
+
+    public function loadAjaxWall()
+    {
+        $response = $this->client->request('POST', self::BASE_URL . 'al_wall.php', [
+            'form_params' => [
+                'act' => 'get_wall',
+                'al' => 1,
+                'fixed' => 41632,
+                'offset' => 9,
+                'onlyCache' => false,
+                'owner_id' => -48210134,
+                'type' => 'own',
+                'wall_start_from' => 10,
+            ]
+        ]);
+        $html = $response->getBody();
+        $skip = strpos($html, '<div id="post-');
+        if ($skip !== false) {
+            $html = substr($html, $skip, strlen($html));
+        }
+        $skip = strrpos($html, '</div>');
+        if ($skip !== false) {
+            $html = substr($html, 0, $skip+6);
+        }
+
+        return iconv('cp1251', 'utf-8', html_entity_decode($html));
+    }
+
+    public function loadWall(int $groupId, int $offset = 0)
+    {
+        $response = $this->client->request('GET', self::BASE_URL . 'wall-' . $groupId . '?offset=' . $offset, [
+            'query' => [
+                'own' => 1,
+                'offset' => $offset
+            ],
+            'headers' => [
+                'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36'
+            ]
+        ]);
+        return $response->getBody();
+    }
+
+    private function wall(int $groupId, int $offset = 0): \Generator
+    {
+        $html = $this->loadWall($groupId, $offset);
+
+        libxml_use_internal_errors(true);
+        $dom = new \DOMDocument();
+        $dom->loadHTML($html);
+        $xpath = new \DOMXPath($dom);
+
+        $posts = $xpath->query('//div[@class="wall_item"]');
+
+        if ($posts->length == 0) {
+            $posts = $xpath->query('//div[contains(@class, "_post post")]');
+        }
+
+        /** @var \DOMElement $posts */
+        foreach ($posts as $post) {
+            yield [
+                'id' => $this->getPostId($xpath, $post),
+                'date' => $this->getPostDate($xpath, $post),
+                'likes' => $this->getCount($xpath, $post, 'like'),
+                'shares' => $this->getCount($xpath, $post, 'share'),
+                'views' => $this->getCount($xpath, $post, 'views'),
+                'comments' => $this->getComments($xpath, $post)
+            ];
+        }
+    }
+
+    public function getPostId(\DOMXPath &$xpath, \DOMElement &$post): ?int
+    {
+        $id = $xpath->query('.//a[contains(@class, "post__anchor")]', $post);
+
+        if (!isset($id[0])) {
+            return (int)array_last(explode('_', $post->getAttribute('data-post-id')));
+        }
+
+        return (int)array_last(explode('_', $id[0]->getAttribute('name')));
+    }
+
+    public function getPostDate(\DOMXPath &$xpath, \DOMElement &$post)
+    {
+        $date = $xpath->query('.//a[@class="wi_date"]', $post);
+
+        if (!isset($date[0])) {
+            $date = $xpath->query('.//span[@class="rel_date"]', $post);
+            if (!isset($date[0])) {
+                $date = $xpath->query('.//span[@class="rel_date rel_date_needs_update"]', $post);
+                if (!isset($date[0])) {
+                    return null;
+                }
+            }
+        }
+
+        return $this->date2carbon($date[0]->textContent);
+    }
+
+    public function getCount(\DOMXPath &$xpath, \DOMElement &$post, string $element): int
+    {
+        $count = $xpath->query('.//b[@class="v_' . $element . '"]', $post);
+
+        if (!isset($count[0])) {
+            $count = $xpath->query('.//div[contains(@class, "feedback_' . $element . '")]', $post);
+            if (!isset($count[0])) {
+                return 0;
+            }
+        }
+
+        $count = $count[0]->textContent;
+        $count = preg_replace('#K#i', '000', $count);
+        $count = preg_replace('#M#i', '000000', $count);
+
+        return (int)$count;
+    }
+
+    public function getComments(\DOMXPath &$xpath, \DOMElement &$post): int
+    {
+        try {
+            $comments = $xpath->query('.//a[@class="wr_header"]', $post);
+            if (!isset($comments[0])) {
+                return 0;
+            }
+            return (int)array_last(explode('/', $comments[0]->getAttribute('offs')));
+        } catch (\Exception $exception) {
+            return 0;
+        }
+    }
+
+    public function decode(string $text): string
+    {
+//        return iconv('cp1251', 'utf-8', iconv('utf-8', 'cp1252', $text));
+        return iconv('cp1251', 'utf-8', $text);
     }
 }
