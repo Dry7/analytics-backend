@@ -2,15 +2,15 @@
 
 namespace App\Services\Html;
 
+use App\Models\Group;
+use App\Types\Network;
+use App\Types\Type;
 use Carbon\Carbon;
 use GuzzleHttp\Client;
 
 class VKService
 {
     private const BASE_URL = 'https://vk.com/';
-
-    public const TYPE_GROUP = 'group';
-    public const TYPE_PUBLIC = 'public';
 
     private const INFO = [
         'links' => 'Ссылки',
@@ -41,6 +41,20 @@ class VKService
         $html = $this->load($slug);
 
         $data = $this->parseHTML($html);
+
+        if (is_null($data['source_id']) || is_null($data['members'])) {
+            return;
+        }
+
+        $this->save($data);
+    }
+
+    public function save($data)
+    {
+        Group::updateOrCreate(
+            ['network_id' => Network::VKONTAKTE, 'slug' => $data['slug']],
+            collect($data)->except(['url', 'links', 'photos', 'boards', 'audio', 'video', 'market'])->toArray()
+        );
     }
 
     /**
@@ -61,10 +75,11 @@ class VKService
         $html = preg_replace('#<span class="num_delim"> </span>#i', '', $html);
 
         $result = [
-            'id'           => null,
+            'source_id'    => null,
             'title'        => null,
             'members'      => null,
             'url'          => null,
+            'slug'         => null,
             'is_verified'  => null,
             'opened_at'    => null,
             'last_post_at' => null,
@@ -88,7 +103,7 @@ class VKService
         $result['is_closed'] = preg_match('#Закрытая группа#i', $html);
         $result['is_adult'] = preg_match('#Мне исполнилось 18 лет#i', $html);
         $result['is_banned'] = preg_match('#Сообщество заблокировано в связи с возможным нарушением правил сайта.#i', $html);
-        $result['type'] = preg_match('#mhi_back">Страница</span>#i', $html) ? self::TYPE_PUBLIC : self::TYPE_GROUP;
+        $result['type_id'] = preg_match('#mhi_back">Страница</span>#i', $html) ? Type::PUBLIC : Type::GROUP;
 
         if (preg_match('#<dt>Дата основания:</dt><dd>(.*)</dd>#i', $html, $opened_at)) {
             $result['opened_at'] = $this->date2carbon($opened_at[1]);
@@ -106,6 +121,9 @@ class VKService
 
         if (preg_match('#<img src="(.*)" class="pp_img#i', $html, $avatar)) {
             $result['avatar'] = $avatar[1];
+            if ($result['avatar'] === '/images/community_100.png') {
+                $result['avatar'] = self::BASE_URL . substr($result['avatar'], 1, strlen($result['avatar']));
+            }
         }
 
         if (preg_match('#<span class="slim_header_label">(.*)</span>#i', $html, $posts)) {
@@ -114,12 +132,21 @@ class VKService
             $result['posts'] = preg_replace('/[^0-9]*/i', '', $posts[1]);
         }
 
-        if (preg_match('#<a href="\/wall\?act=toggle_subscribe\&owner_id=\-(\d*)&#i', $html, $id)) {
-            $result['id'] = $id[1];
+        if (!((int)$result['posts'] > 0)) {
+            if (preg_match('#<input type="hidden" id="page_wall_count_own" value="(.*)" />#i', $html, $posts)) {
+                $result['posts'] = (int)$posts[1];
+            } else {
+                $result['posts'] = null;
+            }
+        }
+
+        if (preg_match('#<a href="\/wall\?act=toggle_subscribe\&owner_id=\-(\d*)&#i', $html, $source_id)) {
+            $result['source_id'] = $source_id[1];
         }
 
         if (preg_match('#<link rel="canonical" href="([^"]*)" />#i', $html, $url)) {
             $result['url'] = $url[1];
+            $result['slug'] = str_replace(self::BASE_URL, '', $result['url']);
         }
 
         foreach (self::INFO as $key => $value) {
@@ -164,34 +191,48 @@ class VKService
             return now()->subSeconds((int)$date);
         }
 
+        if (preg_match('#\d год#i', $date)) {
+            return Carbon::createFromDate((int)$date, 1, 1);
+        }
+
+        foreach ([
+            'Январь' => 1, 'Февраль' => 2, 'Март' => 3, 'Апрель' => 4, 'Май' => 5, 'Июнь' => 6, 'Июль' => 7,
+                     'Август' => 8, 'Сентябрь' => 9, 'Октябрь' => 10, 'Ноябрь' => 11, 'Декабрь' => 12
+                 ] as $value => $id) {
+            if (preg_match('#' . $value . ' (\d*)#i', $date, $year)) {
+                return Carbon::createFromDate($year[1], $id, 1);
+            }
+        }
+
         $months = [
-            'янв' => 1,
             'января' => 1,
-            'фев' => 2,
+            'янв' => 1,
             'февраля' => 2,
-            'мар' => 3,
+            'фев' => 2,
             'марта' => 3,
-            'апр' => 4,
+            'мар' => 3,
             'апреля' => 4,
+            'апр' => 4,
             'мая' => 5,
-            'июн' => 6,
             'июня' => 6,
-            'июл' => 7,
+            'июн' => 6,
             'июля' => 7,
-            'авг' => 8,
+            'июл' => 7,
             'августа' => 8,
-            'сен' => 9,
+            'авг' => 8,
             'сентября' => 9,
-            'окт' => 10,
+            'сен' => 9,
             'октября' => 10,
-            'ноя' => 11,
+            'окт' => 10,
             'ноября' => 11,
-            'дек' => 12,
+            'ноя' => 11,
             'декабря' => 12,
+            'дек' => 12,
         ];
 
         $date = preg_replace('#сегодня в#i', now()->format('d.m.Y'), $date);
         $date = preg_replace('#вчера в#i', now()->subDay()->format('d.m.Y'), $date);
+        $date = preg_replace('#Фераль#i', 'фев', $date);
 
         $year = $this->getYear($date);
 
@@ -213,7 +254,7 @@ class VKService
      */
     private function getYear(string $date)
     {
-        for ($year = now()->year, $i = 0; $i < 20; $i++) {
+        for ($year = now()->year, $i = 0; $i < 200; $i++) {
             if (preg_match('#' . ($year - $i) . '#i', $date)) {
                 return '';
             }
