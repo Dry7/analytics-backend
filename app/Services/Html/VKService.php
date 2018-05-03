@@ -19,6 +19,7 @@ class VKService
         'audio' => 'Аудиозаписи',
         'video' => 'Видео',
         'market' => 'Товары',
+        'members_possible' => 'Возможные участники',
     ];
 
     /** @var Client */
@@ -57,6 +58,14 @@ class VKService
         );
     }
 
+    public function test($slug)
+    {
+        $html = $this->load($slug);
+
+        $data = $this->parseHTML($html);
+        print_r($data);
+        echo $html;
+    }
     /**
      * @param string $slug
      * @return string
@@ -85,6 +94,9 @@ class VKService
             'last_post_at' => null,
             'avatar'       => null,
             'posts'        => null,
+            'city'         => null,
+            'event_start'  => null,
+            'event_end'    => null,
         ];
 
         if (preg_match('#<title>(.*)</title>#i', $html, $title)) {
@@ -103,10 +115,29 @@ class VKService
         $result['is_closed'] = preg_match('#Закрытая группа#i', $html);
         $result['is_adult'] = preg_match('#Мне исполнилось 18 лет#i', $html);
         $result['is_banned'] = preg_match('#Сообщество заблокировано в связи с возможным нарушением правил сайта.#i', $html);
-        $result['type_id'] = preg_match('#mhi_back">Страница</span>#i', $html) ? Type::PUBLIC : Type::GROUP;
+
+        if (preg_match('#mhi_back">Мероприятие</span>#i', $html)) {
+            $result['type_id'] = Type::EVENT;
+        } elseif (preg_match('#mhi_back">Страница</span>#i', $html)) {
+            $result['type_id'] = Type::PUBLIC;
+        } else {
+            $result['type_id'] = Type::GROUP;
+        }
 
         if (preg_match('#<dt>Дата основания:</dt><dd>(.*)</dd>#i', $html, $opened_at)) {
             $result['opened_at'] = $this->date2carbon($opened_at[1]);
+        }
+
+        if (preg_match('#<dl class="pinfo_row"><dt>Место:</dt><dd><a(?: [^>]*)>([^>]*)</a>#i', $html, $city)) {
+            $result['city'] = strip_tags($city[1]);
+        }
+
+        if (preg_match('#<dt>Начало:</dt><dd>([^>]*)</dd>#i', $html, $event_start)) {
+            $result['event_start'] = $this->date2carbon($event_start[1]);
+        }
+
+        if (preg_match('#<dt>Окончание:</dt><dd>([^>]*)</dd>#i', $html, $event_end)) {
+            $result['event_end'] = $this->date2carbon($event_end[1]);
         }
 
         if (preg_match_all('#<a class="wi_date"(?: [^>]*)>(.*)</a>#i', $html, $last_post_at)) {
@@ -256,6 +287,11 @@ class VKService
     {
         for ($year = now()->year, $i = 0; $i < 200; $i++) {
             if (preg_match('#' . ($year - $i) . '#i', $date)) {
+                return '';
+            }
+        }
+        for ($year = now()->year, $i = 0; $i < 200; $i++) {
+            if (preg_match('#' . ($year + $i) . '#i', $date)) {
                 return '';
             }
         }
