@@ -6,25 +6,17 @@ use VK\Client\VKApiClient;
 
 class VKService
 {
+    private const OFFSET = 100;
+
     /** @var VKApiClient */
     private $api;
 
-    public function __construct()
+    /** @var string */
+    private $apiKey;
+
+    public function __construct(VKApiClient $api, string $apiKey)
     {
         $this->api = new VKApiClient();
-
-    }
-
-    public function getCountries(): \Generator
-    {
-        $offset = 0;
-        do {
-            $countries = $this->api->database()->getCountries(config('vk.api.key'), [
-                'need_all' => true,
-                'offset' => $offset,
-            ]);
-            yield $countries['items'];
-            $offset += 100;
-        } while (count($countries['items']) == 100);
+        $this->apiKey = $apiKey;
     }
 }
