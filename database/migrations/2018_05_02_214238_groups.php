@@ -28,8 +28,11 @@ class Groups extends Migration
             $table->boolean('is_banned')->default(false)->comment = 'Забанено';
             $table->boolean('in_search')->nullable()->comment = 'Доступно в поиске';
             $table->unsignedInteger('posts')->nullable()->comment = 'Количество записей на стене';
+            $table->unsignedInteger('members_possible')->default(0)->comment = 'Возможные участники';
             $table->dateTime('opened_at')->nullable()->comment = 'Дата открытия';
             $table->dateTime('last_post_at')->nullable()->comment = 'Последняя запись';
+            $table->dateTime('event_start')->nullable()->comment = 'Начало события';
+            $table->dateTime('event_end')->nullable()->comment = 'Окончание события';
             $table->unsignedInteger('cpp')->nullable()->comment = 'Цена поста';
             $table->timestamps();
         });
