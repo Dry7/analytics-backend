@@ -22,7 +22,6 @@ class Groups extends Migration
             $table->unsignedTinyInteger('source_id')->comment = 'ID сообщества в социальной сети';
             $table->string('slug')->comment = 'URL сообщества';
             $table->unsignedInteger('members')->default(0)->comment = 'Количество участников';
-            $table->unsignedInteger('cpp')->nullable()->comment = 'Цена поста';
             $table->boolean('is_verified')->default(false)->comment = 'Подтвержден';
             $table->boolean('is_closed')->default(false)->comment = 'Закрытое сообщество';
             $table->boolean('is_adult')->default(false)->comment = '18+';
@@ -31,6 +30,7 @@ class Groups extends Migration
             $table->unsignedInteger('posts')->nullable()->comment = 'Количество записей на стене';
             $table->dateTime('opened_at')->nullable()->comment = 'Дата открытия';
             $table->dateTime('last_post_at')->nullable()->comment = 'Последняя запись';
+            $table->unsignedInteger('cpp')->nullable()->comment = 'Цена поста';
             $table->timestamps();
         });
     }
