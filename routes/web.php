@@ -12,6 +12,6 @@
 */
 
 Route::get('/', function () {
-    app(\App\Services\Html\VKService::class)->run('club2');
+    app(\App\Services\Html\VKService::class)->test('event110');
     return view('welcome');
 });

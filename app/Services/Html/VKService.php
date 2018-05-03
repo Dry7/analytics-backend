@@ -3,6 +3,7 @@
 namespace App\Services\Html;
 
 use App\Models\Group;
+use App\Services\CountryService;
 use App\Types\Network;
 use App\Types\Type;
 use Carbon\Carbon;
@@ -25,13 +26,18 @@ class VKService
     /** @var Client */
     private $client;
 
+    /** @var CountryService */
+    private $countryService;
+
     /**
      * VKService constructor.
      * @param Client $client
+     * @param CountryService $countryService
      */
-    public function __construct(Client $client)
+    public function __construct(Client $client, CountryService $countryService)
     {
         $this->client = $client;
+        $this->countryService = $countryService;
     }
 
     /**
@@ -66,6 +72,7 @@ class VKService
         print_r($data);
         echo $html;
     }
+
     /**
      * @param string $slug
      * @return string
@@ -94,7 +101,9 @@ class VKService
             'last_post_at' => null,
             'avatar'       => null,
             'posts'        => null,
-            'city'         => null,
+            'country_code' => null,
+            'state_code'   => null,
+            'city_code'    => null,
             'event_start'  => null,
             'event_end'    => null,
         ];
@@ -129,7 +138,9 @@ class VKService
         }
 
         if (preg_match('#<dl class="pinfo_row"><dt>Место:</dt><dd><a(?: [^>]*)>([^>]*)</a>#i', $html, $city)) {
-            $result['city'] = strip_tags($city[1]);
+            foreach ($this->countryService->findCity(strip_tags($city[1])) as $key => $value) {
+                $result[$key] = $value;
+            }
         }
 
         if (preg_match('#<dt>Начало:</dt><dd>([^>]*)</dd>#i', $html, $event_start)) {

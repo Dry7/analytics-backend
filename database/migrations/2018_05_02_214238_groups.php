@@ -22,13 +22,16 @@ class Groups extends Migration
             $table->unsignedTinyInteger('source_id')->comment = 'ID сообщества в социальной сети';
             $table->string('slug')->comment = 'URL сообщества';
             $table->unsignedInteger('members')->default(0)->comment = 'Количество участников';
+            $table->unsignedInteger('members_possible')->default(0)->comment = 'Возможные участники';
             $table->boolean('is_verified')->default(false)->comment = 'Подтвержден';
             $table->boolean('is_closed')->default(false)->comment = 'Закрытое сообщество';
             $table->boolean('is_adult')->default(false)->comment = '18+';
             $table->boolean('is_banned')->default(false)->comment = 'Забанено';
             $table->boolean('in_search')->nullable()->comment = 'Доступно в поиске';
             $table->unsignedInteger('posts')->nullable()->comment = 'Количество записей на стене';
-            $table->unsignedInteger('members_possible')->default(0)->comment = 'Возможные участники';
+            $table->string('country_code')->nullable()->comment = 'ISO код страны';
+            $table->string('state_code')->nullable()->comment = 'ISO код региона';
+            $table->string('city_code')->nullable()->comment = 'Geonames код города';
             $table->dateTime('opened_at')->nullable()->comment = 'Дата открытия';
             $table->dateTime('last_post_at')->nullable()->comment = 'Последняя запись';
             $table->dateTime('event_start')->nullable()->comment = 'Начало события';
