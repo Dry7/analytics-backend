@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "84d1473fcac60b72639d723c2e6042bd",
+    "content-hash": "876a81c009eb7d7cbd43d0de84de65d5",
     "packages": [
         {
             "name": "cakephp/chronos",
@@ -1044,6 +1044,139 @@
                 "storage"
             ],
             "time": "2018-04-06T09:58:14+00:00"
+        },
+        {
+            "name": "menarasolutions/geographer",
+            "version": "v0.3.4",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/MenaraSolutions/geographer.git",
+                "reference": "1f15dde4be9b5eb0222871e159ffc99621b26942"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/MenaraSolutions/geographer/zipball/1f15dde4be9b5eb0222871e159ffc99621b26942",
+                "reference": "1f15dde4be9b5eb0222871e159ffc99621b26942",
+                "shasum": ""
+            },
+            "require": {
+                "menarasolutions/geographer-data": "^0.1.0",
+                "php": ">=5.5.0"
+            },
+            "require-dev": {
+                "codeclimate/php-test-reporter": "dev-master",
+                "illuminate/support": "5.*",
+                "menarasolutions/geographer-de": "0.*",
+                "menarasolutions/geographer-ru": "0.*",
+                "phpunit/phpunit": "4.*|5.*"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "0.4-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "MenaraSolutions\\Geographer\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Denis Mysenko",
+                    "email": "denis@menara.com.au",
+                    "homepage": "https://www.menara.com.au"
+                }
+            ],
+            "description": "A PHP library that knows how any country, state or city is called in any language",
+            "homepage": "https://github.com/MenaraSolutions/geographer",
+            "keywords": [
+                "geo",
+                "geolocation",
+                "geonames",
+                "localization"
+            ],
+            "time": "2017-11-13T04:21:30+00:00"
+        },
+        {
+            "name": "menarasolutions/geographer-data",
+            "version": "v0.1.6",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/MenaraSolutions/geographer-data.git",
+                "reference": "5898806b09be9a7549d3bd9f6b4d629f0f551100"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/MenaraSolutions/geographer-data/zipball/5898806b09be9a7549d3bd9f6b4d629f0f551100",
+                "reference": "5898806b09be9a7549d3bd9f6b4d629f0f551100",
+                "shasum": ""
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "MenaraSolutions\\Geographer\\Helpers\\": "helpers/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Denis Mysenko",
+                    "email": "denis@menara.com.au",
+                    "homepage": "https://www.menara.com.au"
+                }
+            ],
+            "description": "Basic data package for Geographer - countries and their subdivisions",
+            "homepage": "https://github.com/MenaraSolutions/geographer-data",
+            "keywords": [
+                "geographer",
+                "geolocation",
+                "localization"
+            ],
+            "time": "2017-06-08T08:47:08+00:00"
+        },
+        {
+            "name": "menarasolutions/geographer-ru",
+            "version": "0.2.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/MenaraSolutions/geographer-ru.git",
+                "reference": "499fb656e64dc8fe1c04d1e58bd47bcd15cf5c17"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/MenaraSolutions/geographer-ru/zipball/499fb656e64dc8fe1c04d1e58bd47bcd15cf5c17",
+                "reference": "499fb656e64dc8fe1c04d1e58bd47bcd15cf5c17",
+                "shasum": ""
+            },
+            "type": "library",
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Denis Mysenko",
+                    "email": "denis@menara.com.au",
+                    "homepage": "https://www.menara.com.au"
+                }
+            ],
+            "description": "Russian translations for Geographer library",
+            "homepage": "https://github.com/MenaraSolutions/geographer-ru",
+            "keywords": [
+                "geographer",
+                "geolocation",
+                "localization",
+                "russian"
+            ],
+            "time": "2016-12-26T05:08:40+00:00"
         },
         {
             "name": "monolog/monolog",
