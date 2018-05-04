@@ -85,9 +85,15 @@ class VKService
     /**
      * @param string $html
      * @return array
+     *
+     * @throws \Exception
      */
     private function parseHTML(string $html): array
     {
+        if (preg_match('#Вы попытались загрузить более одной однотипной страницы в секунду.#i', $html)) {
+            throw new \Exception('VK query limit exceeded');
+        }
+
         $html = preg_replace('#<span class="num_delim"> </span>#i', '', $html);
 
         $result = [
@@ -123,7 +129,8 @@ class VKService
         $result['is_verified'] = preg_match('#<b class="verified"></b>#i', $html);
         $result['is_closed'] = preg_match('#Закрытая группа#i', $html);
         $result['is_adult'] = preg_match('#Мне исполнилось 18 лет#i', $html);
-        $result['is_banned'] = preg_match('#Сообщество заблокировано в связи с возможным нарушением правил сайта.#i', $html);
+        $result['is_banned'] = preg_match('#Сообщество заблокировано в связи с возможным нарушением правил сайта.#i', $html)
+        || preg_match('#Данный материал заблокирован на территории Российской Федерации#i', $html);
 
         if (preg_match('#mhi_back">Мероприятие</span>#i', $html)) {
             $result['type_id'] = Type::EVENT;
