@@ -16,7 +16,7 @@ use GuzzleHttp\Exception\RequestException;
 class VKService
 {
     private const BASE_URL = 'https://vk.com/';
-    private const MAX_WALL_PAGES = 5; //Максимальное количиство страниц стены для парсинга
+    private const MAX_WALL_PAGES = 5; //Максимальное количество страниц стены для парсинга
     private const MAX_WALL_DATE = 2; //Максивальная дата поста для парсинга (В месяцах)
 
     private const INFO = [
@@ -103,6 +103,18 @@ class VKService
         } while ($page < self::MAX_WALL_PAGES);
     }
 
+    public function runHistory(Group $group)
+    {
+        $data = [
+            'group_id' => $group->id,
+            'date' => now(),
+            'members' => $group->members,
+            'members_possible' => $group->members_possible,
+            'posts' => $group->posts,
+            'likes' => $group->likes,
+        ];
+    }
+
     /**
      * @param Group $group
      * @return bool
@@ -135,7 +147,8 @@ class VKService
     {
         $model = Post::updateOrCreate(
             ['group_id' => $group->id, 'post_id' => $post['id']],
-            collect($post)->only(['date', 'likes', 'shares', 'views', 'comments', 'is_pinned'])->toArray() + ['links' => count($post['links'])]
+            collect($post)->only(['date', 'likes', 'shares', 'views', 'comments', 'is_pinned', 'is_ad'])->toArray()
+            + ['links' => count($post['links'])]
         );
 
         $this->saveLinks($model, $post['links']);
@@ -538,6 +551,7 @@ class VKService
                 'views' => $this->getCount($xpath, $post, 'views'),
                 'comments' => $this->getComments($xpath, $post),
                 'is_pinned' => $this->getPostPinned($xpath, $post),
+                'is_ad' => $this->getPostAd($xpath, $post),
                 'links' => $this->getPostLinks($xpath, $post),
             ];
         }
@@ -615,7 +629,7 @@ class VKService
         try {
             $comments = $xpath->query('.//a[@class="wr_header"]', $post);
             if (!isset($comments[0])) {
-                return 0;
+                return $xpath->query('.//div[contains(@class, "reply_wrap")]', $post)->length;
             }
             return (int)array_last(explode('/', $comments[0]->getAttribute('offs')));
         } catch (\Exception $exception) {
@@ -631,6 +645,16 @@ class VKService
     public function getPostPinned(\DOMXPath &$xpath, \DOMElement &$post): bool
     {
         return $xpath->query('.//span[@class="wall_fixed_label"]', $post)->length > 0;
+    }
+
+    /**
+     * @param \DOMXPath $xpath
+     * @param \DOMElement $post
+     * @return bool
+     */
+    public function getPostAd(\DOMXPath &$xpath, \DOMElement &$post): bool
+    {
+        return $xpath->query('.//div[@class="wall_marked_as_ads"]', $post)->length > 0;
     }
 
     /**
