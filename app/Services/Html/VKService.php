@@ -4,6 +4,7 @@ namespace App\Services\Html;
 
 use App\Helpers\Utils;
 use App\Models\Group;
+use App\Models\Link;
 use App\Models\Post;
 use App\Services\CountryService;
 use App\Types\Network;
@@ -86,9 +87,10 @@ class VKService
         do {
             $count = 0;
             foreach ($this->wall($group->source_id, $offset) as $post) {
+                print_r($post);
                 $this->savePost($group, $post);
                 $count++;
-                if ($post['date'] < $dateFilter) {
+                if (!$post['is_pinned'] && $post['date'] < $dateFilter) {
                     return;
                 }
             }
@@ -119,22 +121,33 @@ class VKService
     {
         $group = Group::updateOrCreate(
             ['network_id' => Network::VKONTAKTE, 'slug' => $data['slug']],
-            collect($data)->except(['url', 'links', 'photos', 'boards', 'audio', 'video', 'market', 'posts'])->toArray()
+            collect($data)->except(['url', 'links', 'photos', 'boards', 'audio', 'video', 'market'])->toArray()
         );
 
-//        foreach ($data['posts'] as $post) {
+//        foreach ($data['wall'] as $post) {
 //            $this->savePost($group, $post);
 //        }
 
         return $group;
     }
 
-    public function savePost($group, $post)
+    public function savePost(&$group, &$post)
     {
-        Post::updateOrCreate(
+        $model = Post::updateOrCreate(
             ['group_id' => $group->id, 'post_id' => $post['id']],
-            collect($post)->only(['date', 'likes', 'shares', 'views', 'comments'])->toArray()
+            collect($post)->only(['date', 'likes', 'shares', 'views', 'comments', 'is_pinned'])->toArray() + ['links' => count($post['links'])]
         );
+
+        $this->saveLinks($model, $post['links']);
+    }
+
+    public function saveLinks(Post &$post, array $urls)
+    {
+        foreach ($urls as $url) {
+            Link::updateOrCreate(
+                ['group_id' => $post->group_id, 'post_id' => $post->post_id, 'url' => $url]
+            );
+        }
     }
 
     /**
@@ -191,6 +204,7 @@ class VKService
             'opened_at'    => null,
             'last_post_at' => null,
             'avatar'       => null,
+            'wall'         => null,
             'posts'        => null,
             'country_code' => null,
             'state_code'   => null,
@@ -281,14 +295,14 @@ class VKService
             }
         }
 
-        foreach ($this->loadPostsFromGroup($html) as $key => $val) {
+        foreach ($this->loadWallFromGroup($html) as $key => $val) {
             $result[$key] = $val;
         }
 
         return $result;
     }
 
-    public function loadPostsFromGroup(string $html)
+    public function loadWallFromGroup(string $html)
     {
         $lastPostAt = null;
 
@@ -330,7 +344,7 @@ class VKService
 
         return [
             'last_post_at' => $lastPostAt,
-            'posts'        => $posts,
+            'wall'         => $posts,
         ];
     }
 
@@ -390,11 +404,11 @@ class VKService
                 return now()->subHours(5);
         }
 
-        if (preg_match('#\d (минут|минуты) назад#i', $date)) {
+        if (preg_match('#\d (минут|минуты|минуту) назад#i', $date)) {
             return now()->subMinutes((int)$date);
         }
 
-        if (preg_match('#\d (секунду|секунды) назад#i', $date)) {
+        if (preg_match('#\d (секунд|секунду|секунды) назад#i', $date)) {
             return now()->subSeconds((int)$date);
         }
 
@@ -522,7 +536,9 @@ class VKService
                 'likes' => $this->getCount($xpath, $post, 'like'),
                 'shares' => $this->getCount($xpath, $post, 'share'),
                 'views' => $this->getCount($xpath, $post, 'views'),
-                'comments' => $this->getComments($xpath, $post)
+                'comments' => $this->getComments($xpath, $post),
+                'is_pinned' => $this->getPostPinned($xpath, $post),
+                'links' => $this->getPostLinks($xpath, $post),
             ];
         }
     }
@@ -605,6 +621,48 @@ class VKService
         } catch (\Exception $exception) {
             return 0;
         }
+    }
+
+    /**
+     * @param \DOMXPath $xpath
+     * @param \DOMElement $post
+     * @return bool
+     */
+    public function getPostPinned(\DOMXPath &$xpath, \DOMElement &$post): bool
+    {
+        return $xpath->query('.//span[@class="wall_fixed_label"]', $post)->length > 0;
+    }
+
+    /**
+     * @param \DOMXPath $xpath
+     * @param \DOMElement $post
+     * @return array
+     */
+    public function getPostLinks(\DOMXPath &$xpath, \DOMElement &$post): array
+    {
+        $urls = [];
+        try {
+            $links = $xpath->query('.//a[contains(@href, "/away.php?to=")]', $post);
+            if ($links->length > 0) {
+                foreach ($links as $link) {
+                    $urls[] = $this->getLinkFromQueryString($link->getAttribute('href'));
+                }
+            }
+            return $urls;
+        } catch (\Exception $exception) {
+            return $urls;
+        }
+    }
+
+    /**
+     * @param string $url
+     * @return string
+     */
+    public function getLinkFromQueryString(string $url): string
+    {
+        parse_str(parse_url($url)['query'], $result);
+
+        return $result['to'];
     }
 
     /**
