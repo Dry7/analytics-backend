@@ -68,7 +68,7 @@ class VKService
     {
         Group::updateOrCreate(
             ['network_id' => Network::VKONTAKTE, 'slug' => $data['slug']],
-            collect($data)->except(['url', 'links', 'photos', 'boards', 'audio', 'video', 'market'])->toArray()
+            collect($data)->except(['url', 'links', 'photos', 'boards', 'audio', 'video', 'market', 'posts'])->toArray()
         );
     }
 
@@ -177,16 +177,6 @@ class VKService
             $result['event_end'] = $this->date2carbon($event_end[1]);
         }
 
-        if (preg_match_all('#<a class="wi_date"(?: [^>]*)>(.*)</a>#i', $html, $last_post_at)) {
-            $result['last_post_at'] = $this->date2carbon($last_post_at[1][0]);
-            if (preg_match('#запись закреплена#i', $html)
-                && isset($last_post_at[1][1])
-                && $this->date2carbon($last_post_at[1][1]) > $result['last_post_at']
-            ) {
-                $result['last_post_at'] = $this->date2carbon($last_post_at[1][1]);
-            }
-        }
-
         if (preg_match('#<img src="(.*)" class="pp_img#i', $html, $avatar)) {
             $result['avatar'] = $avatar[1];
             if ($result['avatar'] === '/images/community_100.png') {
@@ -225,7 +215,57 @@ class VKService
             }
         }
 
+        foreach ($this->loadPostsFromGroup($html) as $key => $val) {
+            $result[$key] = $val;
+        }
+
         return $result;
+    }
+
+    public function loadPostsFromGroup(string $html)
+    {
+        $lastPostAt = null;
+
+        if (!preg_match_all('#data-post-id="([^"]*)" data-post-click-type="post_owner_img"#i', $html, $ids)) {
+            $ids = [1 => []];
+        }
+
+        if (!preg_match_all('#<a class="wi_date"(?: [^>]*)>([^<]*)</a>#i', $html, $dates)) {
+            $dates = [1 => []];
+        }
+
+        if (!preg_match_all('#aria-label="(\d+) Нравится"><i class="i_like">#i', $html, $likes)) {
+            $likes = [1 => []];
+        }
+
+        if (!preg_match_all('#aria-label="(\d+) Поделиться"><i class="i_share">#i', $html, $shares)) {
+            $shares = [1 => []];
+        }
+
+        if (!preg_match_all('#no_views|aria-label="(\d+) (просмотр|просмотра|просмотров)*"><i class="i_views">#i', $html, $views)) {
+            $views = [1 => []];
+        }
+
+        $posts = [];
+
+        foreach ($ids[1] as $i => $id) {
+            $date = $this->date2carbon($dates[1][$i]);
+            if (is_null($lastPostAt) || $date > $lastPostAt) {
+                $lastPostAt = $date;
+            }
+            $posts[] = [
+                'id'     => array_last(explode('_', $id)),
+                'dates'  => $date,
+                'likes'  => $likes[1][$i],
+                'shares' => $shares[1][$i],
+                'views'  => $views[1][$i],
+            ];
+        }
+
+        return [
+            'last_post_at' => $lastPostAt,
+            'posts'        => $posts,
+        ];
     }
 
     /**
