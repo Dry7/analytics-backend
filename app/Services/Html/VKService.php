@@ -8,6 +8,7 @@ use App\Types\Network;
 use App\Types\Type;
 use Carbon\Carbon;
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\RequestException;
 
 class VKService
 {
@@ -42,10 +43,14 @@ class VKService
 
     /**
      * @param string $slug
+     *
+     * @throws \Exception
      */
     public function run(string $slug)
     {
-        $html = $this->load($slug);
+        if (!($html = $this->load($slug))) {
+            exit();
+        }
 
         $data = $this->parseHTML($html);
 
@@ -56,6 +61,9 @@ class VKService
         $this->save($data);
     }
 
+    /**
+     * @param $data
+     */
     public function save($data)
     {
         Group::updateOrCreate(
@@ -64,9 +72,15 @@ class VKService
         );
     }
 
+    /**
+     * @param $slug
+     * @throws \Exception
+     */
     public function test($slug)
     {
-        $html = $this->load($slug);
+        if (!($html = $this->load($slug))) {
+            exit();
+        }
 
         $data = $this->parseHTML($html);
         print_r($data);
@@ -77,9 +91,14 @@ class VKService
      * @param string $slug
      * @return string
      */
-    private function load(string $slug): string
+    private function load(string $slug): ?string
     {
-        return $this->client->get(self::BASE_URL . $slug)->getBody();
+        try {
+            return $this->client->get(self::BASE_URL . $slug)->getBody();
+        } catch (RequestException $exception) {
+            echo $slug . ' - banned';
+            return null;
+        }
     }
 
     /**
