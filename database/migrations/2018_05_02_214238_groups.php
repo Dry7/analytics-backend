@@ -14,7 +14,7 @@ class Groups extends Migration
     public function up()
     {
         Schema::create('groups', function (Blueprint $table) {
-            $table->increments('id');
+            $table->bigIncrements('id');
             $table->unsignedTinyInteger('network_id')->comment = 'ID социальной сети';
             $table->unsignedTinyInteger('type_id')->comment = 'Тип сообщества';
             $table->string('avatar')->nullable()->comment = 'URL аватара';
