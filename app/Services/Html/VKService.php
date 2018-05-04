@@ -15,8 +15,8 @@ use GuzzleHttp\Exception\RequestException;
 class VKService
 {
     private const BASE_URL = 'https://vk.com/';
-    private const MAX_WALL_PAGES = 5;
-    private const MAX_WALL_DATE = 2;
+    private const MAX_WALL_PAGES = 5; //Максимальное количиство страниц стены для парсинга
+    private const MAX_WALL_DATE = 2; //Максивальная дата поста для парсинга (В месяцах)
 
     private const INFO = [
         'links' => 'Ссылки',
