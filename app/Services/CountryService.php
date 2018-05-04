@@ -49,6 +49,14 @@ class CountryService
         $countryCode = $this->getCountryCode($address);
         $stateCode = null;
 
+        if (is_null($countryCode)) {
+            return [
+                'country_code' => $countryCode,
+                'state_code' => $stateCode,
+                'city_code' => null,
+            ];
+        }
+
         foreach($this->service->findOneByCode($countryCode)->getStates() as $state) {
             if (preg_match('#' . $state->name . '#i', $address)) {
                 $stateCode = $state->isoCode;

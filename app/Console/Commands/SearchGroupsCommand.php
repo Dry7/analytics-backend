@@ -29,8 +29,7 @@ class SearchGroupsCommand extends Command
      */
     public function handle()
     {
-        for ($i = 1000; $i <= 1010; $i++) {
-            echo "\n" . $i;
+        for ($i = 10001; $i <= 10001; $i++) {
             UpdateGroupJob::dispatch(Network::VKONTAKTE, 'club' . $i)->onQueue('vk:search-groups');
         }
     }
