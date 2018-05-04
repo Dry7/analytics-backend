@@ -613,10 +613,17 @@ class VKService
         }
 
         $count = $count[0]->textContent;
-        $count = preg_replace('#K#i', '000', $count);
-        $count = preg_replace('#M#i', '000000', $count);
 
-        return (int)$count;
+        $multiplier = 1;
+        if (preg_match('#\dK#i', $count)) {
+            $multiplier = 1000;
+        } elseif (preg_match('#\dM#i', $count)) {
+            $multiplier = 1000000;
+        }
+
+        $count = (float)preg_replace('#([^0-9.KM]+)#i', '', $count);
+
+        return (int)($count * $multiplier);
     }
 
     /**
