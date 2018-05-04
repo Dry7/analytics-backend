@@ -11,16 +11,19 @@ use Illuminate\Database\Eloquent\Model;
  *
  * @property int $id
  * @property int $group_id
+ * @property int $post_id
  * @property Carbon $date
  * @property int $likes
  * @property int $shares
  * @property int $views
  * @property int $comments
+ * @property int $links
+ * @property bool $is_pinned
  */
 class Post extends Model
 {
     protected $fillable = [
-        'group_id', 'post_id', 'date', 'likes', 'shares', 'views', 'comments',
+        'group_id', 'post_id', 'date', 'likes', 'shares', 'views', 'comments', 'links', 'is_pinned',
     ];
 
     protected $dates = [
