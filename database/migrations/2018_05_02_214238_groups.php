@@ -22,7 +22,7 @@ class Groups extends Migration
             $table->unsignedTinyInteger('source_id')->comment = 'ID сообщества в социальной сети';
             $table->string('slug')->comment = 'URL сообщества';
             $table->unsignedInteger('members')->default(0)->comment = 'Количество участников';
-            $table->unsignedInteger('members_possible')->default(0)->comment = 'Возможные участники';
+            $table->unsignedInteger('members_possible')->nullable()->comment = 'Возможные участники';
             $table->boolean('is_verified')->default(false)->comment = 'Подтвержден';
             $table->boolean('is_closed')->default(false)->comment = 'Закрытое сообщество';
             $table->boolean('is_adult')->default(false)->comment = '18+';
