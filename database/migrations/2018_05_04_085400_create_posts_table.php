@@ -22,6 +22,8 @@ class CreatePostsTable extends Migration
             $table->unsignedInteger('shares')->nullable()->comment = 'Актуальное количество репостов';
             $table->unsignedInteger('views')->nullable()->comment = 'Актуальное количество просмотров';
             $table->unsignedInteger('comments')->nullable()->comments = 'Актуальное количество комментариев';
+            $table->unsignedTinyInteger('links')->nullable()->comment = 'Количество внешних ссылок';
+            $table->boolean('is_pinned')->comments = 'Запись закреплена';
             $table->timestamps();
         });
     }
