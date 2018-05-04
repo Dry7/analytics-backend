@@ -17,7 +17,7 @@ class VKService
 {
     private const BASE_URL = 'https://vk.com/';
     private const MAX_WALL_PAGES = 5; //Максимальное количество страниц стены для парсинга
-    private const MAX_WALL_DATE = 2; //Максивальная дата поста для парсинга (В месяцах)
+    private const MAX_WALL_DATE = 2; //Максимальная дата поста для парсинга (В месяцах)
 
     private const INFO = [
         'links' => 'Ссылки',
@@ -672,7 +672,7 @@ class VKService
                     $urls[] = $this->getLinkFromQueryString($link->getAttribute('href'));
                 }
             }
-            return $urls;
+            return collect($urls)->unique()->toArray();
         } catch (\Exception $exception) {
             return $urls;
         }
