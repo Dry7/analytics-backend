@@ -24,6 +24,8 @@ class CountryService
      */
     public function getCountryCode(string $address): ?string
     {
+        $address = preg_replace('#Беларусь#i', 'Белоруссия', $address);
+
         foreach ($this->service->getCountries() as $country) {
             if (preg_match('#' . $country->name . '#i', $address)) {
                 return $country->isoCode;
