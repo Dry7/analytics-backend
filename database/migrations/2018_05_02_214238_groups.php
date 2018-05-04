@@ -19,7 +19,7 @@ class Groups extends Migration
             $table->unsignedTinyInteger('type_id')->comment = 'Тип сообщества';
             $table->string('avatar')->nullable()->comment = 'URL аватара';
             $table->string('title')->nullable()->comment = 'Заголовок';
-            $table->unsignedTinyInteger('source_id')->comment = 'ID сообщества в социальной сети';
+            $table->unsignedBigInteger('source_id')->comment = 'ID сообщества в социальной сети';
             $table->string('slug')->comment = 'URL сообщества';
             $table->unsignedInteger('members')->default(0)->comment = 'Количество участников';
             $table->unsignedInteger('members_possible')->nullable()->comment = 'Возможные участники';
