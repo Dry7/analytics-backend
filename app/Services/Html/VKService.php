@@ -2,7 +2,9 @@
 
 namespace App\Services\Html;
 
+use App\Helpers\Utils;
 use App\Models\Group;
+use App\Models\Post;
 use App\Services\CountryService;
 use App\Types\Network;
 use App\Types\Type;
@@ -13,6 +15,8 @@ use GuzzleHttp\Exception\RequestException;
 class VKService
 {
     private const BASE_URL = 'https://vk.com/';
+    private const MAX_WALL_PAGES = 5;
+    private const MAX_WALL_DATE = 2;
 
     private const INFO = [
         'links' => 'Ссылки',
@@ -58,17 +62,78 @@ class VKService
             return;
         }
 
-        $this->save($data);
+        $group = $this->save($data);
+
+        $this->runWall($group);
+    }
+
+    /**
+     * @param Group|string $slug
+     */
+    public function runWall($slug)
+    {
+        $group = is_string($slug) ? Group::whereSlug($slug)->first() : $slug;
+
+        if (!$this->isCheckWall($group)) {
+            echo "\n$group->slug skip wall";
+            return;
+        }
+
+        $dateFilter = now()->subMonths(self::MAX_WALL_DATE);
+
+        $offset = $page = 0;
+
+        do {
+            $count = 0;
+            foreach ($this->wall($group->source_id, $offset) as $post) {
+                $this->savePost($group, $post);
+                $count++;
+                if ($post['date'] < $dateFilter) {
+                    return;
+                }
+            }
+            if ($count == 20) {
+                $offset += $count;
+            } else {
+                return;
+            }
+            $page++;
+        } while ($page < self::MAX_WALL_PAGES);
+    }
+
+    /**
+     * @param Group $group
+     * @return bool
+     */
+    public function isCheckWall(Group $group): bool
+    {
+        return !$group->is_closed && !$group->is_banned && ($group->posts > 0) && !is_null($group->last_post_at);
     }
 
     /**
      * @param $data
+     *
+     * @return Group
      */
     public function save($data)
     {
-        Group::updateOrCreate(
+        $group = Group::updateOrCreate(
             ['network_id' => Network::VKONTAKTE, 'slug' => $data['slug']],
             collect($data)->except(['url', 'links', 'photos', 'boards', 'audio', 'video', 'market', 'posts'])->toArray()
+        );
+
+//        foreach ($data['posts'] as $post) {
+//            $this->savePost($group, $post);
+//        }
+
+        return $group;
+    }
+
+    public function savePost($group, $post)
+    {
+        Post::updateOrCreate(
+            ['group_id' => $group->id, 'post_id' => $post['id']],
+            collect($post)->only(['date', 'likes', 'shares', 'views', 'comments'])->toArray()
         );
     }
 
@@ -83,6 +148,7 @@ class VKService
         }
 
         $data = $this->parseHTML($html);
+        $this->save($data);
         print_r($data);
         echo $html;
     }
@@ -255,10 +321,10 @@ class VKService
             }
             $posts[] = [
                 'id'     => array_last(explode('_', $id)),
-                'dates'  => $date,
-                'likes'  => $likes[1][$i],
-                'shares' => $shares[1][$i],
-                'views'  => $views[1][$i],
+                'date'   => $date,
+                'likes'  => Utils::string2null($likes[1][$i]),
+                'shares' => Utils::string2null($shares[1][$i]),
+                'views'  => Utils::string2null($views[1][$i]),
             ];
         }
 
@@ -275,6 +341,39 @@ class VKService
     private function date2carbon(string $date)
     {
         switch ($date) {
+            case 'только что':
+                return now();
+
+            case 'одну минуту назад':
+                return now()->subMinute();
+
+            case 'две минуты назад':
+                return now()->subMinutes(3);
+
+            case 'три минуты назад':
+                return now()->subMinutes(3);
+
+            case 'четыре минуты назад':
+                return now()->subMinutes(4);
+
+            case 'пять минут назад':
+                return now()->subMinutes(5);
+
+            case 'шесть минут назад':
+                return now()->subMinutes(6);
+
+            case 'семь минут назад':
+                return now()->subMinutes(7);
+
+            case 'восемь минут назад':
+                return now()->subMinutes(8);
+
+            case 'девять минут назад':
+                return now()->subMinutes(9);
+
+            case 'десять минут назад':
+                return now()->subMinutes(10);
+
             case 'час назад':
                 return now()->subHour();
 
