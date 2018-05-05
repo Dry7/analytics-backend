@@ -17,7 +17,7 @@ class CreateLinksTable extends Migration
             $table->increments('id');
             $table->unsignedBigInteger('group_id')->comment = 'ID группы в аналитике';
             $table->unsignedBigInteger('post_id')->comment = 'ID поста в социальной сети';
-            $table->string('url')->comment = 'Ссылка';
+            $table->string('url', 500)->comment = 'Ссылка';
             $table->timestamps();
         });
     }
