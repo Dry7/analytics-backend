@@ -4,6 +4,7 @@ namespace App\Services\Html;
 
 use App\Helpers\Utils;
 use App\Models\Group;
+use App\Models\GroupsHistory;
 use App\Models\Link;
 use App\Models\Post;
 use App\Services\CountryService;
@@ -54,7 +55,7 @@ class VKService
     public function run(string $slug)
     {
         if (!($html = $this->load($slug))) {
-            exit();
+            return;
         }
 
         $data = $this->parseHTML($html);
@@ -66,6 +67,7 @@ class VKService
         $group = $this->save($data);
 
         $this->runWall($group);
+        $this->runHistory($group);
     }
 
     /**
@@ -87,7 +89,6 @@ class VKService
         do {
             $count = 0;
             foreach ($this->wall($group->source_id, $offset) as $post) {
-                print_r($post);
                 $this->savePost($group, $post);
                 $count++;
                 if (!$post['is_pinned'] && $post['date'] < $dateFilter) {
@@ -106,13 +107,22 @@ class VKService
     public function runHistory(Group $group)
     {
         $data = [
-            'group_id' => $group->id,
-            'date' => now(),
             'members' => $group->members,
             'members_possible' => $group->members_possible,
             'posts' => $group->posts,
-            'likes' => $group->likes,
-        ];
+            'likes' => $group->getTotalLikes(),
+            'avg_posts' => $group->getAveragePostsPerDay(),
+        ] + $group->getCountsPerPost();
+
+        $this->saveHistory($group, $data);
+    }
+
+    public function saveHistory(Group $group, array $data)
+    {
+        GroupsHistory::updateOrCreate(
+            ['group_id' => $group->id, 'date' => now()],
+            $data
+        );
     }
 
     /**
@@ -121,7 +131,11 @@ class VKService
      */
     public function isCheckWall(Group $group): bool
     {
-        return !$group->is_closed && !$group->is_banned && ($group->posts > 0) && !is_null($group->last_post_at);
+        return !$group->is_closed
+            && !$group->is_banned
+            && ($group->posts > 0)
+            && !is_null($group->last_post_at)
+            && $group->last_post_at < now()->subMonths(self::MAX_WALL_DATE);
     }
 
     /**
@@ -673,13 +687,13 @@ class VKService
     {
         $urls = [];
         try {
-            $links = $xpath->query('.//a[contains(@href, "/away.php?to=")]', $post);
+            $links = $xpath->query('.//div[@class="wall_text"]//a[contains(@href, "/away.php?to=")]', $post);
             if ($links->length > 0) {
                 foreach ($links as $link) {
                     $urls[] = $this->getLinkFromQueryString($link->getAttribute('href'));
                 }
             }
-            return collect($urls)->unique()->toArray();
+            return collect($urls)->unique()->filter(function($url) { return strlen($url) <= 500; })->toArray();
         } catch (\Exception $exception) {
             return $urls;
         }
@@ -693,7 +707,7 @@ class VKService
     {
         parse_str(parse_url($url)['query'], $result);
 
-        return $result['to'];
+        return $this->decode($result['to']);
     }
 
     /**
@@ -702,7 +716,6 @@ class VKService
      */
     public function decode(string $text): string
     {
-//        return iconv('cp1251', 'utf-8', iconv('utf-8', 'cp1252', $text));
         return iconv('cp1251', 'utf-8', $text);
     }
 }
