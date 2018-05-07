@@ -5,6 +5,7 @@ namespace App\Services;
 use Illuminate\Support\Facades\Cache;
 use MenaraSolutions\Geographer\Earth;
 use MenaraSolutions\Geographer\Services\TranslationAgency;
+use MenaraSolutions\Geographer\State;
 
 class CountryService
 {
@@ -79,5 +80,29 @@ class CountryService
             'state_code' => $stateCode,
             'city_code' => null,
         ];
+    }
+
+    public function getCountries()
+    {
+        return collect($this->service->getCountries())
+            ->map(function ($item) { return ['isoCode' => $item->isoCode, 'name' => $item->name]; })
+            ->sortBy('name')
+            ->values();
+    }
+
+    public function getStates(string $countryCode)
+    {
+        return collect($this->service->findOneByCode($countryCode)->getStates())
+            ->map(function ($item) { return ['isoCode' => $item->isoCode, 'name' => $item->name]; })
+            ->sortBy('name')
+            ->values();
+    }
+
+    public function getCities(string $countryCode, string $stateCode)
+    {
+        return collect(State::build($stateCode)->setLocale(TranslationAgency::LANG_RUSSIAN)->getCities())
+            ->map(function ($item) { return ['geonamesCode' => $item->geonamesCode, 'name' => $item->name]; })
+            ->sortBy('name')
+            ->values();
     }
 }
