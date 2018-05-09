@@ -77,13 +77,14 @@ class VKService
 
     /**
      * @param Group|string $slug
+     *
+     * @throws \Exception
      */
     public function runWall($slug)
     {
         $group = is_string($slug) ? Group::whereSlug($slug)->first() : $slug;
 
         if (!$this->isCheckWall($group)) {
-            echo "\n$group->slug skip wall";
             return;
         }
 
@@ -201,16 +202,28 @@ class VKService
 
     /**
      * @param string $slug
-     * @return string
+     * @return null|string
+     * @throws \Exception
      */
     private function load(string $slug): ?string
     {
         try {
-            return $this->client->get(self::BASE_URL . $slug)->getBody();
+            $response = $this->client->get(self::BASE_URL . $slug)->getBody();
+
+            if ($this->isRateLimit($response)) {
+                sleep(5);
+                throw new \Exception('VK rate limit exceeded');
+            }
+
+            return $response;
         } catch (RequestException $exception) {
-            echo $slug . ' - banned';
             return null;
         }
+    }
+
+    private function isRateLimit(string $html)
+    {
+        return preg_match('#Вы попытались загрузить более одной однотипной страницы в секунду.#i', $html);
     }
 
     /**
@@ -221,10 +234,6 @@ class VKService
      */
     private function parseHTML(string $html): array
     {
-        if (preg_match('#Вы попытались загрузить более одной однотипной страницы в секунду.#i', $html)) {
-            throw new \Exception('VK query limit exceeded');
-        }
-
         $html = preg_replace('#<span class="num_delim"> </span>#i', '', $html);
 
         $result = [
@@ -261,6 +270,7 @@ class VKService
         $result['is_verified'] = preg_match('#<b class="verified"></b>#i', $html);
         $result['is_closed'] = preg_match('#Закрытая группа#i', $html);
         $result['is_adult'] = preg_match('#Мне исполнилось 18 лет#i', $html);
+        $result['is_private'] = preg_match('#Это частное сообщество. Доступ только по приглашениям администраторов.#i', $html);
         $result['is_banned'] = preg_match('#Сообщество заблокировано в связи с возможным нарушением правил сайта.#i', $html)
         || preg_match('#Данный материал заблокирован на территории Российской Федерации#i', $html);
 
@@ -526,6 +536,7 @@ class VKService
      * @param int $groupId
      * @param int $offset
      * @return mixed
+     * @throws \Exception
      */
     public function loadWall(int $groupId, int $offset = 0)
     {
@@ -537,14 +548,21 @@ class VKService
             'headers' => [
                 'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36'
             ]
-        ]);
-        return $response->getBody();
+        ])->getBody();
+
+        if ($this->isRateLimit($response)) {
+            sleep(5);
+            throw new \Exception('VK rate limit exceeded');
+        }
+
+        return $response;
     }
 
     /**
      * @param int $groupId
      * @param int $offset
      * @return \Generator
+     * @throws \Exception
      */
     private function wall(int $groupId, int $offset = 0): \Generator
     {

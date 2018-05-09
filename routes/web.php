@@ -1,8 +1,8 @@
 <?php
 
 Route::get('/', function () {
-    app(\App\Services\Html\VKService::class)->run('club1531');
-    app(\App\Services\Html\VKService::class)->runHistory(\App\Models\Group::whereSlug('club1531')->first());
+    app(\App\Services\Html\VKService::class)->run('club100639');
+//    app(\App\Services\Html\VKService::class)->runHistory(\App\Models\Group::whereSlug('club1531')->first());
     return view('welcome');
 });
 
@@ -32,10 +32,14 @@ Route::get('/api/groups', function () {
     if (request()->has('avg_shares_per_post_to')) { $query = $query->where('avg_shares_per_post', '<=', request()->input('avg_shares_per_post_to')); }
     if (request()->has('avg_views_per_post_from')) { $query = $query->where('avg_views_per_post', '>=', request()->input('avg_views_per_post_from')); }
     if (request()->has('avg_views_per_post_to')) { $query = $query->where('avg_views_per_post', '<=', request()->input('avg_views_per_post_to')); }
+    if (request()->has('sort')) {
+        $query = $query->whereNotNull(request()->input('sort'))->orderBy(request()->input('sort'), request()->input('direction', 'desc') == 'desc' ? 'desc' : 'asc');
+    } else {
+        $query = $query->orderBy('members', 'desc');
+    }
 
     return response()->json(
         $query
-            ->orderBy('members', 'desc')
             ->take(100)
             ->get()
     )->header('Access-Control-Allow-Origin', '*');
