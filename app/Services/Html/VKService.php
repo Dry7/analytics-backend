@@ -4,10 +4,10 @@ namespace App\Services\Html;
 
 use App\Helpers\Utils;
 use App\Models\Group;
-use App\Models\GroupsHistory;
 use App\Models\Link;
 use App\Models\Post;
 use App\Services\CountryService;
+use App\Services\InfluxService;
 use App\Types\Network;
 use App\Types\Type;
 use Carbon\Carbon;
@@ -36,15 +36,20 @@ class VKService
     /** @var CountryService */
     private $countryService;
 
+    /** @var InfluxService */
+    private $influx;
+
     /**
      * VKService constructor.
      * @param Client $client
      * @param CountryService $countryService
+     * @param InfluxService $influx
      */
-    public function __construct(Client $client, CountryService $countryService)
+    public function __construct(Client $client, CountryService $countryService, InfluxService $influx)
     {
         $this->client = $client;
         $this->countryService = $countryService;
+        $this->influx = $influx;
     }
 
     /**
@@ -104,6 +109,12 @@ class VKService
         } while ($page < self::MAX_WALL_PAGES);
     }
 
+    /**
+     * @param Group $group
+     *
+     * @throws \InfluxDB\Database\Exception
+     * @throws \InfluxDB\Exception
+     */
     public function runHistory(Group $group)
     {
         $data = [
@@ -114,13 +125,8 @@ class VKService
             'avg_posts' => $group->getAveragePostsPerDay(),
         ] + $group->getCountsPerPost();
 
-        $this->saveHistory($group, $data);
-    }
-
-    public function saveHistory(Group $group, array $data)
-    {
-        GroupsHistory::updateOrCreate(
-            ['group_id' => $group->id, 'date' => now()],
+        $this->influx->saveGroupHistory(
+            ['group_id' => $group->id],
             $data
         );
     }
