@@ -19,6 +19,12 @@ class UpdateGroupJob implements ShouldQueue
     /** @var string */
     private $url;
 
+    /** @var int */
+    public $tries = 3;
+
+    /** @var int  */
+    public $timeout = 60;
+
     /**
      * Create a new job instance.
      *
@@ -36,11 +42,19 @@ class UpdateGroupJob implements ShouldQueue
     /**
      * Execute the job.
      *
+     * @param VKService $service
+     *
      * @return void
+     *
+     * @throws \Exception
      */
-    public function handle()
+    public function handle(VKService $service)
     {
-        $service = app(VKService::class);
         $service->run($this->url);
+    }
+
+    public function fail($exception = null)
+    {
+        echo "\nFail - {$this->url} - $exception";
     }
 }
