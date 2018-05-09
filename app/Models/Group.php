@@ -2,9 +2,38 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 
+/**
+ * Class Group
+ * @package App\Models
+ *
+ * @param int $id
+ * @param int $network_id
+ * @param int $type_id
+ * @param string $avatar
+ * @param string $title
+ * @param int $source_id
+ * @param string $slug
+ * @param int $members
+ * @param int $members_possible
+ * @param bool $is_verified
+ * @param bool $is_closed
+ * @param bool $is_adult
+ * @param bool $is_banned
+ * @param bool $in_search
+ * @param int $posts
+ * @param string $country_code
+ * @param string $state_code
+ * @param string $city_code
+ * @param Carbon $opened_at
+ * @param Carbon $last_post_at
+ * @param Carbon $event_start
+ * @param Carbon $event_end
+ * @param int $cpp
+ */
 class Group extends Model
 {
     protected $fillable = ['network_id', 'type_id', 'avatar', 'title', 'source_id', 'slug', 'members', 'members_possible',
