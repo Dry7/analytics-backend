@@ -35,4 +35,12 @@ return [
         'secret' => env('STRIPE_SECRET'),
     ],
 
+    'influx' => [
+        'host' => env('INFLUX_HOST', ''),
+        'port' => env('INFLUX_POST', ''),
+        'username' => env('INFLUX_USERNAME', ''),
+        'password' => env('INFLUX_PASSWORD', ''),
+        'database' => env('INFLUX_DATABASE', 'analytics')
+    ],
+
 ];
