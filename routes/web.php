@@ -1,11 +1,5 @@
 <?php
 
-Route::get('/', function () {
-    app(\App\Services\Html\VKService::class)->run('club100639');
-//    app(\App\Services\Html\VKService::class)->runHistory(\App\Models\Group::whereSlug('club1531')->first());
-    return view('welcome');
-});
-
 Route::get('/api/groups', function () {
     $query = \App\Models\Group::query();
 
