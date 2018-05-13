@@ -13,7 +13,9 @@ class SearchGroupsCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'analytics:search-groups';
+    protected $signature = 'analytics:search-groups
+                                        {--from= : First VK group ID}
+                                        {--to= : Last VK group ID}';
 
     /**
      * The console command description.
@@ -29,7 +31,13 @@ class SearchGroupsCommand extends Command
      */
     public function handle()
     {
-        for ($i = 1003300; $i <= 1003310; $i++) {
+        $from = (int)$this->option('from');
+        $to   = (int)$this->option('to');
+
+        $this->info('From: ' . $from);
+        $this->info('To: ' . $to);
+
+        for ($i = $from; $i <= $to; $i++) {
             UpdateGroupJob::dispatch(Network::VKONTAKTE, 'club' . $i)->onQueue('vk:search-groups');
         }
     }
