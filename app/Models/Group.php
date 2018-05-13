@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\Searchable;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
@@ -36,6 +37,8 @@ use Illuminate\Support\Facades\DB;
  */
 class Group extends Model
 {
+    use Searchable;
+
     protected $fillable = ['network_id', 'type_id', 'avatar', 'title', 'source_id', 'slug', 'members', 'members_possible',
         'is_verified', 'is_closed', 'is_adult', 'is_banned', 'in_search', 'posts', 'country_code', 'state_code', 'city_code',
         'opened_at', 'last_post_at', 'event_start', 'event_end', 'cpp',
@@ -87,5 +90,10 @@ class Group extends Model
             'avg_comments_per_post' => round($counts->comments ?? 0),
             'avg_views_per_post' => round($counts->views ?? 0),
         ];
+    }
+
+    public function getElasticSearchBody()
+    {
+        return $this->toArray();
     }
 }
