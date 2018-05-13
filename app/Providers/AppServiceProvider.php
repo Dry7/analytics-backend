@@ -2,8 +2,12 @@
 
 namespace App\Providers;
 
+use App\Models\Group;
+use App\Observers\GroupObserver;
 use App\Services\CountryService;
+use App\Services\ElasticSearchService;
 use App\Services\InfluxService;
+use Elasticsearch\ClientBuilder;
 use Illuminate\Support\ServiceProvider;
 use InfluxDB\Client;
 
@@ -16,7 +20,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        //
+        Group::observe(GroupObserver::class);
     }
 
     /**
@@ -42,5 +46,9 @@ class AppServiceProvider extends ServiceProvider
                 $service->selectDB(config('services.influx.database'))
             );
         });
+        $this->app->singleton(\Elasticsearch\Client::class, function () {
+            return ClientBuilder::create()->build();
+        });
+        $this->app->singleton(ElasticSearchService::class);
     }
 }
