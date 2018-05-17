@@ -48,6 +48,14 @@ class Group extends Model
         'opened_at', 'last_post_at', 'event_start', 'event_end',
     ];
 
+    protected $casts = [
+        'is_verified' => 'boolean',
+        'is_closed' => 'boolean',
+        'is_adult' => 'boolean',
+        'is_banned' => 'boolean',
+        'in_search' => 'boolean',
+    ];
+
     private $activity;
 
     public function calculateActivity()
