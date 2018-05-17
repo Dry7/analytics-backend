@@ -20,7 +20,7 @@ class ApiAuth
      */
     public function handle($request, Closure $next)
     {
-        if ($request->header(self::X_API_KEY, null) === 'test') {
+        if ($request->header(self::X_API_KEY, null) === config('scraper.api_key')) {
             return 'Invalid API key';
         }
 
