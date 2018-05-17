@@ -11,4 +11,9 @@ class ApiController extends Controller
     {
         $service->saveAll((array)json_decode($request->getContent()));
     }
+
+    public function touch(string $network, Request $request, VKService $service)
+    {
+        $service->touch($request->input('source_id'));
+    }
 }

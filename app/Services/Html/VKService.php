@@ -97,4 +97,9 @@ class VKService
             );
         }
     }
+
+    public function touch(int $sourceId)
+    {
+        Group::whereSourceId($sourceId)->first()->touch();
+    }
 }

@@ -1,5 +1,8 @@
 <?php
 
+Route::get('/test2', function (\App\Services\ElasticSearchService $service) {
+    $service->searchGroup(request());
+});
 Route::get('/api/groups', function () {
     $query = \App\Models\Group::query();
 
