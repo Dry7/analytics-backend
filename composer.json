@@ -14,6 +14,7 @@
         "laravel/tinker": "^1.0",
         "menarasolutions/geographer": "^0.3.4",
         "menarasolutions/geographer-ru": "^0.2.2",
+        "sentry/sentry-laravel": "^0.9.0",
         "vkcom/vk-php-sdk": "^0.2.0",
         "vladimir-yuldashev/laravel-queue-rabbitmq": "^7.0"
     },
