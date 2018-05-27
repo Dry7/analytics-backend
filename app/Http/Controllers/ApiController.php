@@ -7,6 +7,14 @@ use Illuminate\Http\Request;
 
 class ApiController extends Controller
 {
+    /**
+     * @param string $network
+     * @param Request $request
+     * @param VKService $service
+     *
+     * @throws \InfluxDB\Database\Exception
+     * @throws \InfluxDB\Exception
+     */
     public function register(string $network, Request $request, VKService $service)
     {
         $service->saveAll((array)json_decode($request->getContent()));
