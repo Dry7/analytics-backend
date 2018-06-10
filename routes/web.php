@@ -1,7 +1,8 @@
 <?php
 
-Route::get('/test2', function (\App\Services\ElasticSearchService $service) {
-    $service->searchGroup(request());
+Route::get('/test2', function (\App\Services\ElasticSearchService $service, \Illuminate\Http\Request $request) {
+//    throw new Exception('test6');
+//    $service->searchGroup(request());
 });
 Route::get('/api/groups', function () {
     $query = \App\Models\Group::query();
