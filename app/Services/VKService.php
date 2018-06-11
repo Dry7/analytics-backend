@@ -1,18 +1,13 @@
 <?php
 
-namespace App\Services\Html;
+namespace App\Services;
 
-use App\Helpers\Utils;
 use App\Models\Group;
 use App\Models\Link;
 use App\Models\Post;
-use App\Services\CountryService;
-use App\Services\InfluxService;
 use App\Types\Network;
-use App\Types\Type;
 use Carbon\Carbon;
 use GuzzleHttp\Client;
-use GuzzleHttp\Exception\RequestException;
 
 class VKService
 {
@@ -53,9 +48,7 @@ class VKService
 
         $calculateIncrements = $this->saveHistory($group);
 
-        $group->fill($calculateIncrements + [
-
-        ]);
+        $group->fill($calculateIncrements);
         $group->save();
     }
 
@@ -110,9 +103,10 @@ class VKService
      */
     public function calculateIncrements(Group $group, array $today): array
     {
-        $yesterday = $this->influx->getGroupByNameDate($group->id, Carbon::now()->subDay());
-        $week      = $this->influx->getGroupByNameDate($group->id, Carbon::now()->subWeek());
-        $month     = $this->influx->getGroupByNameDate($group->id, Carbon::now()->subMonth());
+        echo "\n\$this->influx->getGroupByNameDate({$group->id}, " . now()->subDay() . ")";
+        $yesterday = $this->influx->getGroupByNameDate($group->id, now()->subDay());
+        $week      = $this->influx->getGroupByNameDate($group->id, now()->subWeek());
+        $month     = $this->influx->getGroupByNameDate($group->id, now()->subMonth());
 
         $increments = [];
 
