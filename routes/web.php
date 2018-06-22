@@ -38,9 +38,14 @@ Route::get('/api/groups', function () {
 
     return response()->json(
         $query
-            ->take(100)
+            ->offset(request()->input('offset', 0))
+            ->limit(request()->input('limit', 100))
             ->get()
     )->header('Access-Control-Allow-Origin', '*');
+});
+
+Route::get('/api/groups/{group}', function (\App\Models\Group $group) {
+    return new \App\Http\Resources\GroupResource($group);
 });
 
 Route::get('/api/countries', function () {

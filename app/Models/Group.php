@@ -180,6 +180,11 @@ class Group extends Model
         ];
     }
 
+    public function getUrlAttribute(): string
+    {
+        return 'https://vk.com/' . $this->slug;
+    }
+
     public function getElasticSearchBody(): array
     {
         return $this->toArray();
