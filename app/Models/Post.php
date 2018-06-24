@@ -20,6 +20,8 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $links
  * @property bool $is_pinned
  * @property bool $is_ad
+ *
+ * @property Group $group
  */
 class Post extends Model
 {
@@ -30,4 +32,14 @@ class Post extends Model
     protected $dates = [
         'date',
     ];
+
+    public function group()
+    {
+        return $this->belongsTo(Group::class);
+    }
+
+    public function getUrlAttribute()
+    {
+        return 'https://vk.com/wall-' . $this->group->source_id . '_' . $this->post_id;
+    }
 }
