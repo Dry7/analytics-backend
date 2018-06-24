@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Services\Html\VKService;
+use App\Services\VKService;
 use Illuminate\Http\Request;
 
 class ApiController extends Controller
