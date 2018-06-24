@@ -189,4 +189,9 @@ class Group extends Model
     {
         return $this->toArray();
     }
+
+    public function links()
+    {
+        return $this->hasMany(Link::class);
+    }
 }
