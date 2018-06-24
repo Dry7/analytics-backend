@@ -48,6 +48,12 @@ Route::get('/api/groups/{group}', function (\App\Models\Group $group) {
     return new \App\Http\Resources\GroupResource($group);
 });
 
+Route::middleware([\App\Http\Middleware\AccessControl::class])->group(function () {
+    Route::get('/api/groups/{group}/links', function (\App\Models\Group $group) {
+        return \App\Http\Resources\LinkResource::collection($group->links()->with('post')->get()->sortByDesc('post.date'));
+    });
+});
+
 Route::get('/api/countries', function () {
     return response()->json(app(\App\Services\CountryService::class)->getCountries())->header('Access-Control-Allow-Origin', '*');
 });
