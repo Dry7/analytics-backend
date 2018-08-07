@@ -1,0 +1,1 @@
+CREATE DATABASE analytics_test WITH OWNER analytics;
