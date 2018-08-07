@@ -2,7 +2,9 @@
 /public/hot
 /public/storage
 /storage/*.key
+/storage/postgres
 /storage/rabbitmq
+/storage/redis
 /vendor
 /.idea
 /.vscode
