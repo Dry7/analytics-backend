@@ -48,6 +48,28 @@ services:
       - 15672:15672
       - 5672:5672
 
+  influxdb:
+    image: influxdb:1.6-alpine
+    volumes:
+      - ./storage/influxdb:/var/lib/influxdb
+      - ./docker/influxdb/influxdb.conf:/etc/influxdb/influxdb.conf
+    ports:
+      - 8086:8086
+      - 8083:8083
+    environment:
+      INFLUXDB_DB: analytics
+      INFLUXDB_ADMIN_USER: 'admin'
+      INFLUXDB_ADMIN_PASSWORD: 'analytics'
+      INFLUXDB_USER: 'analytics'
+      INFLUXDB_USER_PASSWORD: 'analytics'
+
+  chronograf:
+    image: chronograf:alpine
+    ports:
+    - 8888:8888
+    links:
+      - influxdb
+
   adminer:
     image: adminer:latest
     restart: always
