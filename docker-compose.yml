@@ -35,9 +35,9 @@ services:
     build: ./docker/php
     volumes:
     - .:/var/www/analytics/backend
-    working_dir: /var/www/analytics/backend
     ports:
       - 9000:9000
+    working_dir: /var/www/analytics/backend
 
   rabbitmq:
     image: rabbitmq:3.7.7-management-alpine
@@ -47,6 +47,23 @@ services:
     ports:
       - 15672:15672
       - 5672:5672
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.3.2
+    environment:
+      - discovery.type=single-node
+#      - cluster.name=analytics-cluster
+#      - bootstrap.memory_lock=true
+#      - vp.max_map_count=262144
+#      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+#    ulimits:
+#      memlock:
+#        soft: -1
+#        hard: -1
+#    volumes:
+#      - ./storage/elasticsearch:/usr/share/elasticsearch/data
+    ports:
+      - 9200:9200
 
   influxdb:
     image: influxdb:1.6-alpine
@@ -84,8 +101,11 @@ services:
     volumes:
     - .:/app
 
-#  phpunit:
-#    build: ./docker/php
-#    command: vendor/bin/phpunit
-#    volumes:
-#    - .:/var/www/analytics/backend
+  phpunit:
+    build: ./docker/php
+    command: vendor/bin/phpunit
+    volumes:
+    - .:/var/www/analytics/backend
+    links:
+      - postgres
+      - elasticsearch

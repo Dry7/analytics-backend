@@ -47,7 +47,9 @@ class AppServiceProvider extends ServiceProvider
             );
         });
         $this->app->singleton(\Elasticsearch\Client::class, function () {
-            return ClientBuilder::create()->build();
+            return ClientBuilder::create()
+                ->setHosts([config('services.elasticsearch.host') . ':' . config('services.elasticsearch.port')])
+                ->build();
         });
         $this->app->singleton(ElasticSearchService::class);
     }
