@@ -2,7 +2,6 @@ version: "3.6"
 services:
   postgres:
     image: postgres:11-beta2-alpine
-    restart: always
     volumes:
       - ./docker/postgres/init_test_db.sql:/docker/entrypoint-initdb.d/init_test.db.sql
       - ./storage/postgres:/var/lib/postgresql/data
@@ -88,7 +87,6 @@ services:
 
   adminer:
     image: adminer:latest
-    restart: always
     ports:
       - 8080:8080
     links:
