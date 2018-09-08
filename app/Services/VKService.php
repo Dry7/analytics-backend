@@ -6,7 +6,6 @@ use App\Models\Group;
 use App\Models\Link;
 use App\Models\Post;
 use App\Types\Network;
-use Carbon\Carbon;
 use GuzzleHttp\Client;
 
 class VKService
@@ -42,8 +41,10 @@ class VKService
             return;
         }
 
-        foreach ($data['wall'] as $post) {
-            $this->savePost($group, (array)$post);
+        if (isset($data['wall'])) {
+            foreach ($data['wall'] as $post) {
+                $this->savePost($group, (array)$post);
+            }
         }
 
         $calculateIncrements = $this->saveHistory($group);
@@ -180,7 +181,7 @@ class VKService
         $model = Post::updateOrCreate(
             ['group_id' => $group->id, 'post_id' => $post['id']],
             collect($post)->only(['date', 'likes', 'shares', 'views', 'comments', 'is_pinned', 'is_ad'])->toArray()
-            + ['links' => count($post['links'])]
+            + ['links' => count((array)$post['links'])]
         );
 
         $this->saveLinks($model, (array)$post['links']);

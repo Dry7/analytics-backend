@@ -121,9 +121,7 @@ class InfluxService
             ->getResultSet()
             ->getPoints());
 
-        return is_null($group) ? $group : collect($group)->map(function ($value) {
-                return $this->int2null($value);
-        })->toArray();
+        return $this->int2null((array)$group);
     }
 
     /**

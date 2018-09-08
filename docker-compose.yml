@@ -1,7 +1,7 @@
 version: "3.6"
 services:
   postgres:
-    image: postgres:11-beta2-alpine
+    image: postgres:11-beta3-alpine
     volumes:
       - ./docker/postgres/init_test_db.sql:/docker/entrypoint-initdb.d/init_test.db.sql
       - ./storage/postgres:/var/lib/postgresql/data
@@ -78,10 +78,50 @@ services:
       INFLUXDB_USER: 'analytics'
       INFLUXDB_USER_PASSWORD: 'analytics'
 
+  sentry:
+    image: sentry
+    links:
+      - redis
+      - postgres
+    ports:
+      - 9999:9000
+    environment:
+      SENTRY_SECRET_KEY: 'QRfG0Kx8T45l0CB2bRz1EkzQTyIg3LMc'
+      SENTRY_POSTGRES_HOST: postgres
+      SENTRY_DB_USER: analytics
+      SENTRY_DB_PASSWORD: analytics
+      SENTRY_REDIS_HOST: redis
+
+  cron:
+    image: sentry
+    links:
+      - redis
+      - postgres
+    command: 'sentry run cron'
+    environment:
+      SENTRY_SECRET_KEY: 'QRfG0Kx8T45l0CB2bRz1EkzQTyIg3LMc'
+      SENTRY_POSTGRES_HOST: postgres
+      SENTRY_DB_USER: analytics
+      SENTRY_DB_PASSWORD: analytics
+      SENTRY_REDIS_HOST: redis
+
+  worker:
+    image: sentry
+    links:
+    - redis
+    - postgres
+    command: 'sentry run worker'
+    environment:
+      SENTRY_SECRET_KEY: 'QRfG0Kx8T45l0CB2bRz1EkzQTyIg3LMc'
+      SENTRY_POSTGRES_HOST: postgres
+      SENTRY_DB_USER: analytics
+      SENTRY_DB_PASSWORD: analytics
+      SENTRY_REDIS_HOST: redis
+
   chronograf:
     image: chronograf:alpine
     ports:
-    - 8888:8888
+      - 8888:8888
     links:
       - influxdb
 

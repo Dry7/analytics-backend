@@ -2,7 +2,6 @@
 
 namespace App\Jobs;
 
-use App\Services\Html\VKService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;

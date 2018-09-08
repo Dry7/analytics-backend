@@ -29,7 +29,7 @@ class SearchGroupsCommand extends Command
      *
      * @return mixed
      */
-    public function handle()
+    public function handle(): void
     {
         $from = (int)$this->option('from');
         $to   = (int)$this->option('to');
@@ -38,7 +38,7 @@ class SearchGroupsCommand extends Command
         $this->info('To: ' . $to);
 
         for ($i = $from; $i <= $to; $i++) {
-            UpdateGroupJob::dispatch(Network::VKONTAKTE, 'club' . $i)->onQueue('vk:search-groups');
+            UpdateGroupJob::dispatch(Network::VKONTAKTE, 'club' . $i)->onQueue('vk');
         }
     }
 }
