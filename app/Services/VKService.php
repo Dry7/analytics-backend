@@ -83,10 +83,7 @@ class VKService
 
         $data += $this->calculateIncrements($group, $data);
 
-        $this->influx->saveGroupHistory(
-            ['group_id' => $group->id],
-            $data
-        );
+        $this->influx->saveGroupHistory(['group_id' => $group->id], $data);
 
         return collect($data)
             ->only([

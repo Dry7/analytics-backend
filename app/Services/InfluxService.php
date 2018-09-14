@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Services\Influx\Views\GroupHistory;
 use Carbon\Carbon;
 use InfluxDB\Client;
 use InfluxDB\Point;
@@ -40,7 +41,7 @@ class InfluxService
      */
     public function saveGroupHistory(array $tags, array $fields)
     {
-        $point = new Point(self::TABLE_GROUPS, null, $tags, $this->null2int($fields));
+        $point = new Point(self::TABLE_GROUPS, null, $tags, $this->null2int(GroupHistory::normalize($fields)));
 
         return $this->write($point);
     }
