@@ -3,6 +3,7 @@
 namespace Tests\Services;
 
 use App\Helpers\Utils;
+use App\Models\Contact;
 use App\Models\Group;
 use App\Models\Post;
 use App\Services\InfluxService;
@@ -524,13 +525,147 @@ var_dump($result);
     {
         // arrange
         $post = factory(Post::class)->create();
-        $links = [];
 
         // act
-        $this->service->saveLinks($post, $links);
+        $this->service->saveLinks($post, []);
 
         // assert
         $this->assertDatabaseMissing('links', ['group_id' => $post->group_id, 'post_id' => $post->post_id]);
+    }
+
+    /**
+     * @test
+     */
+    public function saveContacts()
+    {
+        // arrange
+        $group = factory(Group::class)->create();
+
+        // act
+        $this->service->saveContacts($group->id, [
+            (object)[
+                'avatar' => 'https://pp.userapi.com/c629111/v629111007/7aa63/YzvIv1CD2Cg.jpg?ava=1',
+                'name' => 'Андрей Резников',
+                'url' => 'https://vk.com/andreireznikov',
+            ],
+            (object)[
+                'avatar' => null,
+                'name' => 'Анна Резникова',
+                'url' => 'https://vk.com/id136722',
+            ],
+            (object)[
+                'avatar' => 'https://pp.userapi.com/c841529/v841529667/58e79/NseF7iEhWsc.jpg?ava=1',
+                'name' => null,
+                'url' => 'https://vk.com/tatyanagubanova',
+            ],
+        ]);
+
+        // assert
+        $this->assertDatabaseHas('contacts', [
+            'group_id' => $group->id,
+            'avatar' => 'https://pp.userapi.com/c629111/v629111007/7aa63/YzvIv1CD2Cg.jpg?ava=1',
+            'name' => 'Андрей Резников',
+            'url' => 'https://vk.com/andreireznikov',
+        ]);
+        $this->assertDatabaseHas('contacts', [
+            'group_id' => $group->id,
+            'avatar' => null,
+            'name' => 'Анна Резникова',
+            'url' => 'https://vk.com/id136722',
+        ]);
+        $this->assertDatabaseHas('contacts', [
+            'group_id' => $group->id,
+            'avatar' => 'https://pp.userapi.com/c841529/v841529667/58e79/NseF7iEhWsc.jpg?ava=1',
+            'name' => null,
+            'url' => 'https://vk.com/tatyanagubanova',
+        ]);
+        $this->assertSame(3, $group->contacts()->count());
+    }
+
+    /**
+     * @test
+     */
+    public function saveContactsAndInactivateOld()
+    {
+        // arrange
+        $group = factory(Group::class)->create();
+        factory(Contact::class)->create([
+            'group_id' => $group->id,
+            'avatar' => 'https://pp.userapi.com/c831309/v831309317/176117/B3Rq2TDACH8.jpg?ava=1',
+            'name' => 'Алексей Оболевич',
+            'url' => 'https://vk.com/muzred_record',
+        ]);
+        factory(Contact::class)->create([
+            'group_id' => $group->id,
+            'avatar' => 'https://pp.userapi.com/c629111/v629111007/7aa63/YzvIv1CD2Cg.jpg?ava=1',
+            'name' => 'Андрей Резников',
+            'url' => 'https://vk.com/andreireznikov',
+        ]);
+
+        // act
+        $this->service->saveContacts($group->id, [
+            (object)[
+                'avatar' => 'https://pp.userapi.com/c629111/v629111007/7aa63/YzvIv1CD2Cg.jpg?ava=1',
+                'name' => 'Андрей Резников',
+                'url' => 'https://vk.com/andreireznikov',
+            ],
+            (object)[
+                'avatar' => null,
+                'name' => 'Анна Резникова',
+                'url' => 'https://vk.com/id136722',
+            ],
+            (object)[
+                'avatar' => 'https://pp.userapi.com/c841529/v841529667/58e79/NseF7iEhWsc.jpg?ava=1',
+                'name' => null,
+                'url' => 'https://vk.com/tatyanagubanova',
+            ],
+        ]);
+
+        // assert
+        $this->assertDatabaseHas('contacts', [
+            'group_id' => $group->id,
+            'avatar' => 'https://pp.userapi.com/c831309/v831309317/176117/B3Rq2TDACH8.jpg?ava=1',
+            'name' => 'Алексей Оболевич',
+            'url' => 'https://vk.com/muzred_record',
+            'active' => false,
+        ]);
+        $this->assertDatabaseHas('contacts', [
+            'group_id' => $group->id,
+            'avatar' => 'https://pp.userapi.com/c629111/v629111007/7aa63/YzvIv1CD2Cg.jpg?ava=1',
+            'name' => 'Андрей Резников',
+            'url' => 'https://vk.com/andreireznikov',
+            'active' => true,
+        ]);
+        $this->assertDatabaseHas('contacts', [
+            'group_id' => $group->id,
+            'avatar' => null,
+            'name' => 'Анна Резникова',
+            'url' => 'https://vk.com/id136722',
+            'active' => true,
+        ]);
+        $this->assertDatabaseHas('contacts', [
+            'group_id' => $group->id,
+            'avatar' => 'https://pp.userapi.com/c841529/v841529667/58e79/NseF7iEhWsc.jpg?ava=1',
+            'name' => null,
+            'url' => 'https://vk.com/tatyanagubanova',
+            'active' => true,
+        ]);
+        $this->assertSame(4, $group->contacts()->count());
+    }
+
+    /**
+     * @test
+     */
+    public function saveContactsEmpty()
+    {
+        // arrange
+        $group = factory(Group::class)->create();
+
+        // act
+        $this->service->saveContacts($group->id, []);
+
+        // assert
+        $this->assertDatabaseMissing('contacts', ['group_id' => $group->id]);
     }
 
     /**

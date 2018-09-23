@@ -194,4 +194,9 @@ class Group extends Model
     {
         return $this->hasMany(Link::class);
     }
+
+    public function contacts()
+    {
+        return $this->hasMany(Contact::class);
+    }
 }

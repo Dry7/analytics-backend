@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\Contact;
 use App\Models\Group;
 use App\Models\Link;
 use App\Models\Post;
@@ -33,9 +34,11 @@ class VKService
      * @throws \InfluxDB\Database\Exception
      * @throws \InfluxDB\Exception
      */
-    public function saveAll(array $data)
+    public function saveAll(array $data): void
     {
         $group = $this->save($data);
+
+        $this->saveContacts($group->id, (array)$data['contacts']);
 
         if ((int)$group->members < 5000) {
             return;
@@ -159,21 +162,19 @@ class VKService
      *
      * @return Group
      */
-    public function save($data)
+    public function save($data): Group
     {
-        $group = Group::updateOrCreate(
+        return Group::updateOrCreate(
             ['network_id' => Network::VKONTAKTE, 'source_id' => $data['source_id']],
-            collect($data)->except(['url', 'links', 'photos', 'boards', 'audio', 'video', 'market'])->toArray()
+            collect($data)->except(['url', 'links', 'photos', 'boards', 'audio', 'video', 'market', 'contacts'])->toArray()
         );
-
-        return $group;
     }
 
     /**
      * @param Group $group
      * @param array $post
      */
-    public function savePost(&$group, $post)
+    public function savePost(&$group, $post): void
     {
         $model = Post::updateOrCreate(
             ['group_id' => $group->id, 'post_id' => $post['id']],
@@ -188,7 +189,7 @@ class VKService
      * @param Post $post
      * @param array $urls
      */
-    public function saveLinks(Post &$post, array $urls)
+    public function saveLinks(Post &$post, array $urls): void
     {
         foreach ($urls as $url) {
             Link::updateOrCreate(
@@ -198,9 +199,32 @@ class VKService
     }
 
     /**
+     * @param int $groupId
+     * @param array $contacts
+     */
+    public function saveContacts(int $groupId, array $contacts): void
+    {
+        Contact::query()->where(['group_id' => $groupId, 'active' => true])->update(['active' => false]);
+
+        foreach ($contacts as $contact) {
+            Contact::updateOrCreate(
+                [
+                    'group_id' => $groupId,
+                    'url' => $contact->url,
+                ],
+                [
+                    'avatar' => $contact->avatar,
+                    'name' => $contact->name,
+                    'active' => true,
+                ]
+            );
+        }
+    }
+
+    /**
      * @param int $sourceId
      */
-    public function touch(int $sourceId)
+    public function touch(int $sourceId): void
     {
         Group::whereSourceId($sourceId)->first()->touch();
     }
