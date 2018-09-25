@@ -1,7 +1,7 @@
 version: "3.6"
 services:
   postgres:
-    image: postgres:11-beta3-alpine
+    image: postgres:11-beta4-alpine
     volumes:
       - ./docker/postgres/init_test_db.sql:/docker/entrypoint-initdb.d/init_test.db.sql
       - ./storage/postgres:/var/lib/postgresql/data
