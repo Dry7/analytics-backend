@@ -165,7 +165,7 @@ class VKService
     public function save($data): Group
     {
         return Group::updateOrCreate(
-            ['network_id' => Network::VKONTAKTE, 'source_id' => $data['source_id']],
+            ['source_id' => $data['source_id'], 'network_id' => Network::VKONTAKTE],
             collect($data)->except(['url', 'links', 'photos', 'boards', 'audio', 'video', 'market', 'contacts'])->toArray()
         );
     }
@@ -226,6 +226,9 @@ class VKService
      */
     public function touch(int $sourceId): void
     {
-        Group::whereSourceId($sourceId)->first()->touch();
+        Group::query()
+            ->where(['source_id' => $sourceId, 'network_id' => Network::VKONTAKTE])
+            ->first()
+            ->touch();
     }
 }
