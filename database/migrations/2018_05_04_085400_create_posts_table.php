@@ -1,11 +1,14 @@
 <?php
 
+use App\Helpers\MigrationTrait;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
 class CreatePostsTable extends Migration
 {
+    use MigrationTrait;
+
     /**
      * Run the migrations.
      *
@@ -13,9 +16,11 @@ class CreatePostsTable extends Migration
      */
     public function up()
     {
-        Schema::create('posts', function (Blueprint $table) {
-            $table->increments('id');
-            $table->unsignedBigInteger('group_id')->comment = 'ID группы в аналитике';
+        $this->createSequence('posts');
+        $this->createPartition('posts');
+        $this->createDefaultPartition('posts');
+
+        Schema::table('posts', function (Blueprint $table) {
             $table->unsignedBigInteger('post_id')->comment = 'ID поста в социальной сети';
             $table->dateTime('date')->comment = 'Дата поста';
             $table->unsignedInteger('likes')->nullable()->comment = 'Актуальное количество лайков';
@@ -26,6 +31,9 @@ class CreatePostsTable extends Migration
             $table->boolean('is_pinned')->default(false)->comments = 'Запись закреплена';
             $table->boolean('is_ad')->default(false)->comment = 'Реклама';
             $table->timestamps();
+
+            $table->unique(['group_id', 'post_id'], 'uq__posts__group_id_post_id');
+            $table->index('group_id', 'idx__posts__group_id');
         });
     }
 
@@ -37,5 +45,6 @@ class CreatePostsTable extends Migration
     public function down()
     {
         Schema::dropIfExists('posts');
+        $this->dropSequence('posts');
     }
 }

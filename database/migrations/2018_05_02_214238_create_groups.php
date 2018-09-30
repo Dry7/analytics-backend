@@ -1,11 +1,14 @@
 <?php
 
+use App\Helpers\MigrationTrait;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class Groups extends Migration
+class CreateGroups extends Migration
 {
+    use MigrationTrait;
+
     /**
      * Run the migrations.
      *
@@ -13,8 +16,11 @@ class Groups extends Migration
      */
     public function up()
     {
-        Schema::create('groups', function (Blueprint $table) {
-            $table->bigIncrements('id');
+        $this->createSequence('groups');
+        $this->createPartition('groups', 'id', false);
+        $this->createDefaultPartition('groups');
+
+        Schema::table('groups', function (Blueprint $table) {
             $table->unsignedTinyInteger('network_id')->comment = 'ID социальной сети';
             $table->unsignedTinyInteger('type_id')->comment = 'Тип сообщества';
             $table->string('avatar')->nullable()->comment = 'URL аватара';
@@ -54,6 +60,8 @@ class Groups extends Migration
             $table->dateTime('event_end')->nullable()->comment = 'Окончание события';
             $table->unsignedInteger('cpp')->nullable()->comment = 'Цена поста';
             $table->timestamps();
+
+            $table->index('source_id', 'idx__groups__source_id');
         });
     }
 
@@ -65,5 +73,6 @@ class Groups extends Migration
     public function down()
     {
         Schema::dropIfExists('groups');
+        $this->dropSequence('groups');
     }
 }

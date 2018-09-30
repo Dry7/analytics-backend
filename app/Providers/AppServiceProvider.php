@@ -5,6 +5,7 @@ namespace App\Providers;
 use App\Models\Group;
 use App\Observers\GroupObserver;
 use App\Services\CountryService;
+use App\Services\DatabaseService;
 use App\Services\ElasticSearchService;
 use App\Services\InfluxService;
 use Elasticsearch\ClientBuilder;
@@ -52,5 +53,6 @@ class AppServiceProvider extends ServiceProvider
                 ->build();
         });
         $this->app->singleton(ElasticSearchService::class);
+        $this->app->singleton(DatabaseService::class);
     }
 }
