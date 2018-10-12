@@ -12,8 +12,6 @@ class DatabaseService
         'links',
         'contacts',
     ];
-    private const ROWS_IN_PARTITION = 10;
-    private const MIN_FREE_SPACE_IN_PARTITION = 25;
 
     public function partitionsAutoCreation(): void
     {
@@ -24,23 +22,14 @@ class DatabaseService
 
     public function createNextPartitions(): void
     {
-        echo "\ncreateNextPartitions";
         $max = $this->getMaxPartition($this->getAllPartitions(array_first(self::PARTITION_TABLES)));
 
-        $this->createPartitions($max + 1, $max + self::ROWS_IN_PARTITION);
+        $this->createPartitions($max + 1, $max + config('analytics.partitions.rows_in_partition'));
     }
 
     public function isNeedNewPartition(string $table): bool
     {
-        echo "\n" . '$this->getMaxPartition($this->getAllPartitions($table)) - ' . $this->getMaxPartition($this->getAllPartitions($table));
-        echo "\n" . '$this->getMaxId($table) - ' . $this->getMaxId($table);
-        echo "\n" . 'self::ROWS_IN_PARTITION - ' . self::ROWS_IN_PARTITION;
-        echo "\n" . 'self::MIN_FREE_SPACE_IN_PARTITION - ' . self::MIN_FREE_SPACE_IN_PARTITION;
-        echo "\n" . 'percents - ' . (($this->getMaxPartition($this->getAllPartitions($table)) - $this->getMaxId($table))
-            / self::ROWS_IN_PARTITION / 100);
-        exit();
-        return ($this->getMaxPartition($this->getAllPartitions($table)) - $this->getMaxId($table))
-            / self::ROWS_IN_PARTITION / 100 < self::MIN_FREE_SPACE_IN_PARTITION;
+        return ($this->getMaxPartition($this->getAllPartitions($table)) - $this->getMaxId($table)) < config('analytics.partitions.min_free_space_partition');
     }
 
     public function createPartitions(int $from, int $to): void
