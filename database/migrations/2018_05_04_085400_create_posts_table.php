@@ -32,6 +32,7 @@ class CreatePostsTable extends Migration
             $table->unsignedTinyInteger('links')->nullable()->comment = 'Количество внешних ссылок';
             $table->boolean('is_pinned')->default(false)->comments = 'Запись закреплена';
             $table->boolean('is_ad')->default(false)->comment = 'Реклама';
+            $table->string('export_hash')->nullable()->comment = 'Ключ для экспорта поста';
             $table->timestamps();
 
             $table->unique(['group_id', 'post_id'], 'uq__posts__group_id_post_id');
