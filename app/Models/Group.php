@@ -107,67 +107,67 @@ class Group extends Model
 
     public function getAveragePostsPerDay(): int
     {
-        return round($this->calculateActivity()->avg);
+        return (int)round($this->calculateActivity()->avg);
     }
 
     public function getAveragePostsLinks(): int
     {
-        return round($this->calculateActivity()->avg_links);
+        return (int)round($this->calculateActivity()->avg_links);
     }
 
     public function getAverageAdsLikes(): int
     {
-        return round($this->calculateAds()->avg_likes);
+        return (int)round($this->calculateAds()->avg_likes);
     }
 
     public function getAverageAdsShares(): int
     {
-        return round($this->calculateAds()->avg_shares);
+        return (int)round($this->calculateAds()->avg_shares);
     }
 
     public function getAverageAdsViews(): int
     {
-        return round($this->calculateAds()->avg_views);
+        return (int)round($this->calculateAds()->avg_views);
     }
 
     public function getAverageAdsComments(): int
     {
-        return round($this->calculateAds()->avg_comments);
+        return (int)round($this->calculateAds()->avg_comments);
     }
 
     public function getAverageAdsLinks(): int
     {
-        return round($this->calculateAds()->avg_links);
+        return (int)round($this->calculateAds()->avg_links);
     }
 
     public function getTotalLikes(): int
     {
-        return round($this->calculateActivity()->likes);
+        return (int)round($this->calculateActivity()->likes);
     }
 
     public function getTotalShares(): int
     {
-        return round($this->calculateActivity()->shares);
+        return (int)round($this->calculateActivity()->shares);
     }
 
     public function getTotalViews(): int
     {
-        return round($this->calculateActivity()->views);
+        return (int)round($this->calculateActivity()->views);
     }
 
     public function getTotalComments(): int
     {
-        return round($this->calculateActivity()->comments);
+        return (int)round($this->calculateActivity()->comments);
     }
 
     public function getTotalLinks(): int
     {
-        return round($this->calculateActivity()->links);
+        return (int)round($this->calculateActivity()->links);
     }
 
     public function getTotalAds(): int
     {
-        return round($this->calculateAds()->total);
+        return (int)round($this->calculateAds()->total);
     }
 
     public function getCountsPerPost(): array
