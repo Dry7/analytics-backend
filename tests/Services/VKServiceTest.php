@@ -74,7 +74,7 @@ class VKServiceTest extends TestCase
 
         // act
         $result = $this->service->calculateIncrements($group, $today);
-var_dump($result);
+
         $this->assertSame($expected, $result);
     }
 

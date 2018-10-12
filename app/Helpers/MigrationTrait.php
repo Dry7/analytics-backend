@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Helpers;
 
 use Illuminate\Support\Facades\DB;
@@ -8,7 +10,7 @@ trait MigrationTrait
 {
     public function createSequence(string $table): bool
     {
-        return DB::statement("CREATE SEQUENCE {$table}_id_seq INCREMENT 1 MINVALUE 1 MAXVALUE 2147483647 START 1 CACHE 1;");
+        return DB::statement("CREATE SEQUENCE IF NOT EXISTS {$table}_id_seq INCREMENT 1 MINVALUE 1 MAXVALUE 2147483647 START 1 CACHE 1;");
     }
 
     public function dropSequence(string $table): bool
