@@ -24,6 +24,6 @@ class ApiController extends Controller
 
     public function touch(string $network, Request $request, VKService $service)
     {
-        $service->touch($request->input('source_id'));
+        $service->touch((int)$request->input('source_id'));
     }
 }

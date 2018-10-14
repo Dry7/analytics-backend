@@ -19,6 +19,7 @@ class PostResource extends JsonResource
         return [
             'id' => $this->resource->id,
             'groupId' => $this->resource->group_id,
+            'groupSourceId' => $this->resource->group->source_id,
             'postId' => $this->resource->post_id,
             'url' => $this->resource->url,
             'date' => $this->resource->date->toDateTimeString(),
@@ -26,6 +27,7 @@ class PostResource extends JsonResource
             'shares' => $this->resource->shares,
             'views' => $this->resource->views,
             'comments' => $this->resource->comments,
+            'exportHash' => $this->resource->export_hash,
         ];
     }
 }

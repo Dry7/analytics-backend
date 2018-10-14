@@ -7,6 +7,7 @@ Route::get('/test2', function (\App\Services\ElasticSearchService $service, \Ill
 Route::get('/api/groups', function () {
     $query = \App\Models\Group::query();
 
+    if (request()->has('title')) { $query = $query->where('title', 'like', '%' . request()->input('title') . '%'); }
     if (request()->has('members_from')) { $query = $query->where('members', '>=', request()->input('members_from')); }
     if (request()->has('members_to')) { $query = $query->where('members', '<=', request()->input('members_to')); }
     if (request()->has('type_id')) { $query = $query->whereIn('type_id', explode(',', request()->input('type_id'))); }
@@ -51,6 +52,31 @@ Route::get('/api/groups/{group}', function (\App\Models\Group $group) {
 Route::middleware([\App\Http\Middleware\AccessControl::class])->group(function () {
     Route::get('/api/groups/{group}/links', function (\App\Models\Group $group) {
         return \App\Http\Resources\LinkResource::collection($group->links()->with('post')->get()->sortByDesc('post.date'));
+    });
+
+    Route::get('/api/ads', function () {
+        $query = \App\Models\Post::query();
+
+        return \App\Http\Resources\PostResource::collection(
+            $query
+                ->where('is_ad', true)
+                ->whereNotNull('export_hash')
+                ->orderByDesc('likes')
+                ->get()
+        );
+    });
+
+    Route::get('/api/dictionary/groups', function () {
+        $query = \App\Models\Group::query()->select(['id', 'title'])->orderBy('title', 'asc');
+
+        if (request()->has('title')) { $query = $query->where('title', 'ilike', '%' . request()->input('title') . '%'); }
+
+        return new \App\Http\Resources\GroupShortCollection(
+            $query
+                ->offset(request()->input('offset', 0))
+                ->limit(request()->input('limit', 100))
+                ->get()
+        );
     });
 });
 

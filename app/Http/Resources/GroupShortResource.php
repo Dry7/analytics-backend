@@ -7,13 +7,13 @@ namespace App\Http\Resources;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
- * Class LinkResource
+ * Class GroupShort
  *
  * @package App\Http\Resources
  */
-class LinkResource extends JsonResource
+class GroupShortResource extends JsonResource
 {
-    public static $wrap = null;
+    public static $wrap = 'adsasd';
 
     /**
      * Transform the resource into an array.
@@ -24,11 +24,8 @@ class LinkResource extends JsonResource
     public function toArray($request)
     {
         return [
-            'id' => $this->resource->id,
-            'groupId' => $this->resource->group_id,
-            'url' => $this->resource->url,
-            'isAd' => $this->resource->is_ad,
-            'post' => new PostResource($this->resource->post),
+            'id' => $this->id,
+            'title' => $this->title,
         ];
     }
 

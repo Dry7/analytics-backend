@@ -7,13 +7,13 @@ namespace App\Http\Resources;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
- * Class Group
+ * Class GroupResource
  *
  * @package App\Http\Resources
  */
 class GroupResource extends JsonResource
 {
-    public static $wrap = null;
+    public static $wrap = 'aaaaaaaaaaaaaaaaaa';
 
     /**
      * Transform the resource into an array.
