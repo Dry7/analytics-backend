@@ -62,6 +62,8 @@ Route::middleware([\App\Http\Middleware\AccessControl::class])->group(function (
                 ->where('is_ad', true)
                 ->whereNotNull('export_hash')
                 ->orderByDesc('likes')
+                ->offset(request()->input('offset', 0))
+                ->limit(request()->input('limit', 100))
                 ->get()
         );
     });

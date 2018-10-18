@@ -180,7 +180,10 @@ class VKService
     {
         $model = Post::updateOrCreate(
             ['group_id' => $group->id, 'post_id' => $post['id']],
-            collect($post)->only(['date', 'likes', 'shares', 'views', 'comments', 'is_pinned', 'is_ad'])->toArray()
+            collect($post)->only([
+                'date', 'likes', 'shares', 'views', 'comments', 'is_pinned', 'is_ad', 'is_gif',
+                'is_video', 'video_group_id', 'video_id', 'shared_group_id', 'shared_post_id'
+            ])->toArray()
             + ['links' => count((array)$post['links'])]
         );
 

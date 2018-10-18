@@ -32,6 +32,12 @@ class CreatePostsTable extends Migration
             $table->unsignedTinyInteger('links')->nullable()->comment = 'Количество внешних ссылок';
             $table->boolean('is_pinned')->default(false)->comments = 'Запись закреплена';
             $table->boolean('is_ad')->default(false)->comment = 'Реклама';
+            $table->boolean('is_gif')->default(false)->comment = 'Пост содержит анимированый GIF';
+            $table->boolean('is_video')->default(false)->comment = 'Пост содержит видео';
+            $table->unsignedInteger('video_group_id')->nullable()->comment = 'ID группы видеозаписи';
+            $table->unsignedInteger('video_id')->nullable()->comment = 'ID видеозаписи';
+            $table->unsignedInteger('shared_group_id')->nullable()->comment = 'ID группы репоста';
+            $table->unsignedInteger('shared_post_id')->nullable()->comment = 'ID репоста';
             $table->string('export_hash')->nullable()->comment = 'Ключ для экспорта поста';
             $table->timestamps();
 
