@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Services\VKService;
+use GuzzleHttp\RequestOptions;
 use Illuminate\Http\Request;
 
 class ApiController extends Controller
@@ -25,5 +26,14 @@ class ApiController extends Controller
     public function touch(string $network, Request $request, VKService $service)
     {
         $service->touch((int)$request->input('source_id'));
+    }
+
+    public function savePostExportHash(string $network, Request $request, VKService $service)
+    {
+        $data = (array)json_decode($request->getContent());
+
+        if ($data['exportHash']) {
+            $service->savePostExportHash($data['groupId'], $data['postId'], $data['exportHash']);
+        }
     }
 }

@@ -6,6 +6,7 @@ namespace App\Models;
 
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * Class Post
@@ -44,9 +45,9 @@ class Post extends Model
     ];
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo|Group
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function group(): Group
+    public function group(): BelongsTo
     {
         return $this->belongsTo(Group::class);
     }

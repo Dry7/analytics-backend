@@ -201,4 +201,9 @@ class Group extends Model
     {
         return $this->hasMany(Contact::class);
     }
+
+    public function posts()
+    {
+        return $this->hasMany(Post::class);
+    }
 }

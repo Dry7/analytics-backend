@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Jobs\UpdatePostExportHash;
 use App\Models\Contact;
 use App\Models\Group;
 use App\Models\Link;
@@ -178,6 +179,7 @@ class VKService
      */
     public function savePost(&$group, $post): void
     {
+        /** @var Post $model */
         $model = Post::updateOrCreate(
             ['group_id' => $group->id, 'post_id' => $post['id']],
             collect($post)->only([
@@ -186,6 +188,14 @@ class VKService
             ])->toArray()
             + ['links' => count((array)$post['links'])]
         );
+
+        if ($model->wasRecentlyCreated) {
+            if ((config('analytics.scraper.post_export_hash') === 'all')
+             || (config('analytics.scraper.post_export_hash') === 'ads' && $post['is_ad'])) {
+                UpdatePostExportHash::dispatch(Network::VKONTAKTE, $group->source_id, $post['id'])
+                    ->onQueue(config('analytics.queue.vk'));
+            }
+        }
 
         $this->saveLinks($model, (array)$post['links']);
     }
@@ -235,5 +245,15 @@ class VKService
             ->where(['source_id' => $sourceId, 'network_id' => Network::VKONTAKTE])
             ->first()
             ->touch();
+    }
+
+    public function savePostExportHash(int $groupId, int $postId, string $exportHash): void
+    {
+        Group::query()
+            ->where(['network_id' => Network::VKONTAKTE, 'source_id' => $groupId])
+            ->first()
+            ->posts()
+            ->where('post_id', $postId)
+            ->update(['export_hash' => $exportHash]);
     }
 }
