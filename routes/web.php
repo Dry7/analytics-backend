@@ -54,16 +54,62 @@ Route::middleware([\App\Http\Middleware\AccessControl::class])->group(function (
         return \App\Http\Resources\LinkResource::collection($group->links()->with('post')->get()->sortByDesc('post.date'));
     });
 
-    Route::get('/api/ads', function () {
-        $query = \App\Models\Post::query();
+    Route::post('/api/ads', function (\Illuminate\Http\Request $request) {
+        $query = \App\Models\Post::query()
+            ->where('is_ad', true)
+            ->whereNotNull('export_hash');
 
+        if ($request->has('groupId') && !empty($request->input('groupId'))) { $query->whereIn('group_id', $request->input('groupId')); }
+        if (!empty($request->input('dates.from'))) { $query->where('date', '>=', (new \Carbon\Carbon($request->input('dates.from')))->timezone('Europe/Moscow')->startOfDay()); }
+        if (!empty($request->input('dates.to'))) { $query->where('date', '<=', (new \Carbon\Carbon($request->input('dates.to')))->timezone('Europe/Moscow')->endOfDay()); }
+
+        foreach (['likes', 'comments', 'shares', 'views'] as $property) {
+            if ($request->input($property . '.from') !== null) {
+                $query->where($property, '>=', $request->input($property . '.from'));
+            }
+            if ($request->input($property . '.to') !== null) {
+                $query->where($property, '<=', $request->input($property . '.to'));
+            }
+        }
+
+        if ($request->input('url') !== null) {
+            $query->whereExists(function ($subQuery) use ($request) {
+                $subQuery
+                    ->select(\Illuminate\Support\Facades\DB::raw(1))
+                    ->from('links')
+                    ->whereRaw('posts.post_id = links.post_id')
+                    ->where(function ($whereQuery) use ($request) {
+                        $whereQuery->orWhere('url', 'like', '%' . $request->input('url') . '%');
+                    });
+            });
+        }
+
+        if ($request->input('is_video') !== null) {
+            $query->where('is_video', (int)$request->input('is_video'));
+        }
+
+        if ($request->input('is_gif') !== null) {
+            $query->where('is_gif', (int)$request->input('is_gif'));
+        }
+
+        switch ($request->input('is_shared')) {
+            case false:
+                $query->whereNull('shared_group_id');
+                break;
+            case true:
+                $query->whereNotNull('shared_group_id');
+                break;
+        }
+
+//echo $query
+//    ->orderByDesc('likes')
+//    ->offset(request()->input('offset', 0))
+//    ->limit(request()->input('limit', 10))->toSql();
         return \App\Http\Resources\PostResource::collection(
             $query
-                ->where('is_ad', true)
-                ->whereNotNull('export_hash')
                 ->orderByDesc('likes')
                 ->offset(request()->input('offset', 0))
-                ->limit(request()->input('limit', 100))
+                ->limit(request()->input('limit', 10))
                 ->get()
         );
     });
