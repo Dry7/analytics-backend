@@ -20,5 +20,6 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 Route::middleware(['auth.api'])->group(function () {
     Route::post('/{network}/register', 'ApiController@register');
     Route::post('/{network}/posts/export-hash', 'ApiController@savePostExportHash');
+    Route::post('/{network}/posts/comments', 'ApiController@savePostComments');
     Route::post('/{network}/touch', 'ApiController@touch');
 });
