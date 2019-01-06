@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Jobs\UpdatePostComments;
 use App\Jobs\UpdatePostExportHash;
 use App\Models\Contact;
 use App\Models\Group;
@@ -197,6 +198,11 @@ class VKService
             }
         }
 
+        if ($post['has_next_comments']) {
+            UpdatePostComments::dispatch(Network::VKONTAKTE, $group->source_id, $post['id'])
+                ->onQueue(config('analytics.queue.vk'));
+        }
+
         $this->saveLinks($model, (array)$post['links']);
     }
 
@@ -255,5 +261,15 @@ class VKService
             ->posts()
             ->where('post_id', $postId)
             ->update(['export_hash' => $exportHash]);
+    }
+
+    public function savePostComments(int $groupId, int $postId, string $comments): void
+    {
+        Group::query()
+            ->where(['network_id' => Network::VKONTAKTE, 'source_id' => $groupId])
+            ->first()
+            ->posts()
+            ->where('post_id', $postId)
+            ->update(['comments' => $comments]);
     }
 }
