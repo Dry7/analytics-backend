@@ -3,6 +3,7 @@
 namespace Tests\Services;
 
 use App\Helpers\Utils;
+use App\Jobs\UpdatePostComments;
 use App\Models\Contact;
 use App\Models\Group;
 use App\Models\Post;
@@ -11,6 +12,7 @@ use App\Services\VKService;
 use Carbon\Carbon;
 use GuzzleHttp\Client;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Queue;
 use Mockery\MockInterface;
 use Tests\TestCase;
 
@@ -396,6 +398,7 @@ class VKServiceTest extends TestCase
             'shares'    => 1,
             'views'     => 207,
             'comments'  => 0,
+            'has_next_comments' => false,
             'is_pinned' => false,
             'is_ad'     => false,
             'links'     => [],
@@ -434,6 +437,7 @@ class VKServiceTest extends TestCase
             'shares'    => 0,
             'views'     => 35,
             'comments'  => 0,
+            'has_next_comments' => false,
             'is_pinned' => false,
             'is_ad'     => true,
             'links'     => []
@@ -472,6 +476,7 @@ class VKServiceTest extends TestCase
             'shares'    => 1,
             'views'     => 1200,
             'comments'  => 0,
+            'has_next_comments' => false,
             'is_pinned' => true,
             'is_ad'     => false,
             'links'     => [
@@ -495,6 +500,46 @@ class VKServiceTest extends TestCase
             'is_pinned' => true,
             'is_ad'     => false,
             'links'     => 2,
+        ]);
+    }
+
+    /**
+     * @test
+     */
+    public function savePostWithNextComments()
+    {
+        // arrange
+        Queue::fake();
+        $group = factory(Group::class)->create();
+        $post = [
+            'id'        => 1693,
+            'date'      => '2018-05-11 10:43:00',
+            'likes'     => 1,
+            'shares'    => 1,
+            'views'     => 207,
+            'comments'  => 0,
+            'has_next_comments' => true,
+            'is_pinned' => false,
+            'is_ad'     => false,
+            'links'     => [],
+        ];
+
+        // act
+        $this->service->savePost($group, $post);
+
+        // assert
+        Queue::assertPushedOn('vk', UpdatePostComments::class);
+        $this->assertDatabaseHas('posts', [
+            'group_id'  => $group->id,
+            'post_id'   => 1693,
+            'date'      => '2018-05-11 10:43:00',
+            'likes'     => 1,
+            'shares'    => 1,
+            'views'     => 207,
+            'comments'  => 0,
+            'links'     => 0,
+            'is_pinned' => false,
+            'is_ad'     => false,
         ]);
     }
 
