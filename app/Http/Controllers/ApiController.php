@@ -36,4 +36,13 @@ class ApiController extends Controller
             $service->savePostExportHash($data['groupId'], $data['postId'], $data['exportHash']);
         }
     }
+
+    public function savePostComments(string $network, Request $request, VKService $service)
+    {
+        $data = (array)json_decode($request->getContent());
+
+        if ($data['comments']) {
+            $service->savePostComments($data['groupId'], $data['postId'], $data['comments']);
+        }
+    }
 }
