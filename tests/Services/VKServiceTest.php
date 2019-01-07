@@ -389,6 +389,7 @@ class VKServiceTest extends TestCase
     public function savePostNewPost()
     {
         // arrange
+        Queue::fake();
         $group = factory(Group::class)->create();
         $post = [
             'id'        => 1693,
@@ -407,6 +408,7 @@ class VKServiceTest extends TestCase
         $this->service->savePost($group, $post);
 
         // assert
+        Queue::assertNotPushed(UpdatePostComments::class);
         $this->assertDatabaseHas('posts', [
             'group_id'  => $group->id,
             'post_id'   => 1693,
@@ -427,6 +429,7 @@ class VKServiceTest extends TestCase
     public function savePostExistsPost()
     {
         // arrange
+        Queue::fake();
         $group = factory(Group::class)->create();
         factory(Post::class)->create(['group_id' => $group->id, 'post_id' => 1672, 'created_at' => '2018-02-03 11:01:01']);
         $post = [
@@ -446,6 +449,7 @@ class VKServiceTest extends TestCase
         $this->service->savePost($group, $post);
 
         // assert
+        Queue::assertNotPushed(UpdatePostComments::class);
         $this->assertDatabaseHas('posts', [
             'group_id'   => $group->id,
             'post_id'    => 1672,
@@ -467,6 +471,7 @@ class VKServiceTest extends TestCase
     public function savePostWithLinks()
     {
         // arrange
+        Queue::fake();
         $group = factory(Group::class)->create();
         $post = [
             'id'        => 13810,
@@ -488,6 +493,7 @@ class VKServiceTest extends TestCase
         $this->service->savePost($group, $post);
 
         // assert
+        Queue::assertNotPushed(UpdatePostComments::class);
         $this->assertDatabaseHas('posts', [
             'group_id'  => $group->id,
             'post_id'   => 13810,
