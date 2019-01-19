@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\PostCommentsRequest;
 use App\Http\Requests\PostExportHashRequest;
 use App\Http\Resources\SuccessResponse;
 use App\Services\VKService;
@@ -43,12 +44,10 @@ class ApiController extends Controller
         return new SuccessResponse();
     }
 
-    public function savePostComments(string $network, Request $request, VKService $service)
+    public function savePostComments(string $network, PostCommentsRequest $request, VKService $service)
     {
-        $data = (array)json_decode($request->getContent());
+        $service->savePostComments($request->getGroupId(), $request->getPostId(), $request->getComments());
 
-        if ($data['comments']) {
-            $service->savePostComments($data['groupId'], $data['postId'], $data['comments']);
-        }
+        return new SuccessResponse();
     }
 }

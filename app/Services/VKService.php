@@ -263,7 +263,7 @@ class VKService
             ->update(['export_hash' => $exportHash]);
     }
 
-    public function savePostComments(int $groupId, int $postId, string $comments): void
+    public function savePostComments(int $groupId, int $postId, int $comments): void
     {
         Group::query()
             ->where(['network_id' => Network::VKONTAKTE, 'source_id' => $groupId])

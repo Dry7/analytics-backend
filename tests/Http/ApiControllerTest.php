@@ -105,6 +105,86 @@ class ApiControllerTest extends TestCase
             ->assertSee('Invalid API key');
     }
 
+    /**
+     * @test
+     */
+    public function savePostCommentsSuccess()
+    {
+        // arrange
+        $data = [
+            'groupId' => 1,
+            'postId' => 2,
+            'comments' => 20,
+        ];
+
+        // act
+        $response = $this
+            ->withApiKey()
+            ->json('POST', '/api/vk/posts/comments', $data);
+
+        // expect
+        $this
+            ->service
+            ->shouldHaveReceived('savePostComments')
+            ->once()
+            ->with(...array_values($data));
+
+        // assert
+        $response
+            ->assertStatus(Response::HTTP_OK)
+            ->assertJson(SuccessResponse::RESPONSE);
+    }
+
+    /**
+     * @test
+     */
+    public function savePostCommentsEmptyRequest()
+    {
+        // act
+        $response = $this
+            ->withApiKey()
+            ->json('POST', '/api/vk/posts/comments');
+
+        // expect
+        $this
+            ->service
+            ->shouldNotHaveReceived('savePostComments');
+
+        // assert
+        $response
+            ->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
+            ->assertJsonStructure(
+                [
+                    'message',
+                    'errors' => [
+                        'groupId',
+                        'postId',
+                        'comments',
+                    ]
+                ]
+            );
+    }
+
+    /**
+     * @test
+     */
+    public function savePostCommentsWithoutAuthKey()
+    {
+        // act
+        $response = $this
+            ->json('POST', '/api/vk/posts/comments');
+
+        // expect
+        $this
+            ->service
+            ->shouldNotHaveReceived('savePostComments');
+
+        // assert
+        $response
+            ->assertStatus(Response::HTTP_FORBIDDEN)
+            ->assertSee('Invalid API key');
+    }
+
     protected function withApiKey()
     {
         $apiKey = 'testKey';

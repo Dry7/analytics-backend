@@ -6,7 +6,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class PostExportHashRequest extends FormRequest
+class PostCommentsRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -28,7 +28,7 @@ class PostExportHashRequest extends FormRequest
         return [
             'groupId' => 'required|integer',
             'postId' => 'required|integer',
-            'exportHash' => 'required|string',
+            'comments' => 'required|integer',
         ];
     }
 
@@ -49,10 +49,10 @@ class PostExportHashRequest extends FormRequest
     }
 
     /**
-     * @return string
+     * @return int
      */
-    public function getExportHash(): string
+    public function getComments(): int
     {
-        return $this->json()->get('exportHash');
+        return $this->json()->getInt('comments');
     }
 }
