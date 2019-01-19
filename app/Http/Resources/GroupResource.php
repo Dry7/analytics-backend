@@ -13,8 +13,6 @@ use Illuminate\Http\Resources\Json\JsonResource;
  */
 class GroupResource extends JsonResource
 {
-    public static $wrap = 'aaaaaaaaaaaaaaaaaa';
-
     /**
      * Transform the resource into an array.
      *

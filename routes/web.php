@@ -54,6 +54,10 @@ Route::middleware([\App\Http\Middleware\AccessControl::class])->group(function (
         return \App\Http\Resources\LinkResource::collection($group->links()->with('post')->get()->sortByDesc('post.date'));
     });
 
+    Route::get('/api/groups/{group}/statistics', function (\App\Models\Group $group) {
+        return [];
+    });
+
     Route::post('/api/ads', function (\Illuminate\Http\Request $request) {
         $query = \App\Models\Post::query()
             ->where('is_ad', true)
@@ -138,4 +142,14 @@ Route::get('/api/countries/{countryCode}/states', function ($countryCode) {
 
 Route::get('/api/countries/{countryCode}/states/{stateCode}/cities', function ($countryCode, $stateCode) {
     return response()->json(app(\App\Services\CountryService::class)->getCities($countryCode, $stateCode))->header('Access-Control-Allow-Origin', '*');
+});
+
+Route::get('/test/phpinfo', function () {
+    phpinfo();
+});
+
+Route::get('/test/env', function () {
+    echo '<pre>';
+    print_r($_ENV);
+    echo '</pre>';
 });
