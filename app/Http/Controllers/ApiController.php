@@ -7,7 +7,6 @@ namespace App\Http\Controllers;
 use App\Http\Requests\PostExportHashRequest;
 use App\Http\Resources\SuccessResponse;
 use App\Services\VKService;
-use GuzzleHttp\RequestOptions;
 use Illuminate\Http\Request;
 
 class ApiController extends Controller
