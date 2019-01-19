@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\PostExportHashRequest;
+use App\Http\Resources\SuccessResponse;
 use App\Services\VKService;
 use GuzzleHttp\RequestOptions;
 use Illuminate\Http\Request;
@@ -28,13 +30,18 @@ class ApiController extends Controller
         $service->touch((int)$request->input('source_id'));
     }
 
-    public function savePostExportHash(string $network, Request $request, VKService $service)
+    /**
+     * @param string $network
+     * @param PostExportHashRequest $request
+     * @param VKService $service
+     *
+     * @return SuccessResponse
+     */
+    public function savePostExportHash(string $network, PostExportHashRequest $request, VKService $service)
     {
-        $data = (array)json_decode($request->getContent());
+        $service->savePostExportHash($request->getGroupId(), $request->getPostId(), $request->getExportHash());
 
-        if ($data['exportHash']) {
-            $service->savePostExportHash($data['groupId'], $data['postId'], $data['exportHash']);
-        }
+        return new SuccessResponse();
     }
 
     public function savePostComments(string $network, Request $request, VKService $service)
