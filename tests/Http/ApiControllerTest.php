@@ -36,17 +36,17 @@ class ApiControllerTest extends TestCase
             'exportHash' => 'KOXN44X3Fbzp9oJIRoEpOrVgkRMb',
         ];
 
+        // expect
+        $this
+            ->service
+            ->shouldReceive('savePostExportHash')
+            ->once()
+            ->with(...array_values($data));
+
         // act
         $response = $this
             ->withApiKey()
             ->json('POST', '/api/vk/posts/export-hash', $data);
-
-        // expect
-        $this
-            ->service
-            ->shouldHaveReceived('savePostExportHash')
-            ->once()
-            ->with(...array_values($data));
 
         // assert
         $response
@@ -116,17 +116,17 @@ class ApiControllerTest extends TestCase
             'comments' => 20,
         ];
 
+        // expect
+        $this
+            ->service
+            ->shouldReceive('savePostComments')
+            ->once()
+            ->with(...array_values($data));
+
         // act
         $response = $this
             ->withApiKey()
             ->json('POST', '/api/vk/posts/comments', $data);
-
-        // expect
-        $this
-            ->service
-            ->shouldHaveReceived('savePostComments')
-            ->once()
-            ->with(...array_values($data));
 
         // assert
         $response

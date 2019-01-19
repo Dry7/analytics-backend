@@ -97,13 +97,4 @@ class CountryControllerTest extends TestCase
             ->assertJson($json)
             ->assertJsonCount(2);
     }
-
-    protected function withApiKey()
-    {
-        $apiKey = 'testKey';
-        config()->set('scraper.api_key', $apiKey);
-
-        return $this
-            ->withHeader(ApiAuth::X_API_KEY, $apiKey);
-    }
 }
