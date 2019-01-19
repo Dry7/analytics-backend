@@ -9,7 +9,7 @@
 /storage/redis
 /storage/teamcity
 /vendor
-/.idea
+.idea
 /.vscode
 /.vagrant
 Homestead.json

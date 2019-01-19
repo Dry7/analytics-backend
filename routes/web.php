@@ -132,17 +132,9 @@ Route::middleware([\App\Http\Middleware\AccessControl::class])->group(function (
     });
 });
 
-Route::get('/api/countries', function () {
-    return response()->json(app(\App\Services\CountryService::class)->getCountries())->header('Access-Control-Allow-Origin', '*');
-});
-
-Route::get('/api/countries/{countryCode}/states', function ($countryCode) {
-    return response()->json(app(\App\Services\CountryService::class)->getStates($countryCode))->header('Access-Control-Allow-Origin', '*');
-});
-
-Route::get('/api/countries/{countryCode}/states/{stateCode}/cities', function ($countryCode, $stateCode) {
-    return response()->json(app(\App\Services\CountryService::class)->getCities($countryCode, $stateCode))->header('Access-Control-Allow-Origin', '*');
-});
+Route::get('/api/countries', 'CountryController@countries');
+Route::get('/api/countries/{countryCode}/states', 'CountryController@states');
+Route::get('/api/countries/{countryCode}/states/{stateCode}/cities', 'CountryController@cities');
 
 Route::get('/test/phpinfo', function () {
     phpinfo();
