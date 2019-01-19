@@ -1,18 +1,17 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Services;
 
 use App\Http\Middleware\ApiAuth;
 use App\Http\Resources\SuccessResponse;
 use App\Services\VKService;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Response;
 use Tests\TestCase;
 
 class ApiControllerTest extends TestCase
 {
-    use RefreshDatabase;
-
     /** @var VKService|\Mockery\MockInterface */
     private $service;
 
@@ -20,7 +19,7 @@ class ApiControllerTest extends TestCase
     {
         parent::setUp();
 
-        $this->service = \Mockery::spy(VKService::class);
+        $this->service = \Mockery::mock(VKService::class);
 
         app()->instance(VKService::class, $this->service);
     }
