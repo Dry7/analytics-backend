@@ -8,8 +8,10 @@ use Illuminate\Http\JsonResponse;
 
 class SuccessResponse extends JsonResponse
 {
+    public const RESPONSE = ['success' => true];
+
     public function  __construct()
     {
-        parent::__construct(['success' => true]);
+        parent::__construct(self::RESPONSE);
     }
 }

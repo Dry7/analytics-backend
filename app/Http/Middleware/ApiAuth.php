@@ -6,10 +6,11 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Exception;
+use Illuminate\Http\Response;
 
 class ApiAuth
 {
-    private const X_API_KEY = 'X-API-KEY';
+    public const X_API_KEY = 'X-API-KEY';
 
     /**
      * Handle an incoming request.
@@ -23,7 +24,7 @@ class ApiAuth
     public function handle($request, Closure $next)
     {
         if ($request->header(self::X_API_KEY, null) !== config('scraper.api_key')) {
-            return 'Invalid API key';
+            return response('Invalid API key', Response::HTTP_FORBIDDEN);
         }
 
         return $next($request);
