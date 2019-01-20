@@ -45,18 +45,10 @@ Route::get('/api/groups', function () {
     )->header('Access-Control-Allow-Origin', '*');
 });
 
-Route::get('/api/groups/{group}', function (\App\Models\Group $group) {
-    return new \App\Http\Resources\GroupResource($group);
-});
-
 Route::middleware([\App\Http\Middleware\AccessControl::class])->group(function () {
-    Route::get('/api/groups/{group}/links', function (\App\Models\Group $group) {
-        return \App\Http\Resources\LinkResource::collection($group->links()->with('post')->get()->sortByDesc('post.date'));
-    });
-
-    Route::get('/api/groups/{group}/statistics', function (\App\Models\Group $group) {
-        return [];
-    });
+    Route::get('/api/groups/{group}', 'GroupController@group');
+    Route::get('/api/groups/{group}/links', 'GroupController@links');
+    Route::get('/api/groups/{group}/statistics', 'GroupController@statistics');
 
     Route::post('/api/ads', function (\Illuminate\Http\Request $request) {
         $query = \App\Models\Post::query()
@@ -105,10 +97,6 @@ Route::middleware([\App\Http\Middleware\AccessControl::class])->group(function (
                 break;
         }
 
-//echo $query
-//    ->orderByDesc('likes')
-//    ->offset(request()->input('offset', 0))
-//    ->limit(request()->input('limit', 10))->toSql();
         return \App\Http\Resources\PostResource::collection(
             $query
                 ->orderByDesc('likes')
@@ -118,18 +106,7 @@ Route::middleware([\App\Http\Middleware\AccessControl::class])->group(function (
         );
     });
 
-    Route::get('/api/dictionary/groups', function () {
-        $query = \App\Models\Group::query()->select(['id', 'title'])->orderBy('title', 'asc');
-
-        if (request()->has('title')) { $query = $query->where('title', 'ilike', '%' . request()->input('title') . '%'); }
-
-        return new \App\Http\Resources\GroupShortCollection(
-            $query
-                ->offset(request()->input('offset', 0))
-                ->limit(request()->input('limit', 100))
-                ->get()
-        );
-    });
+    Route::get('/api/dictionary/groups', 'GroupController@groupsShort');
 });
 
 Route::get('/api/countries', 'CountryController@countries');
