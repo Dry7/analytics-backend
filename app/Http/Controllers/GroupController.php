@@ -34,7 +34,7 @@ class GroupController extends Controller
 
     public function links(Group $group): AnonymousResourceCollection
     {
-        return LinkResource::collection($group->links()->with('post')->get()->sortByDesc('post.date'));
+        return LinkResource::collection($this->service->links($group));
     }
 
     public function statistics(Group $group): array
