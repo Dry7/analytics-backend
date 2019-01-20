@@ -31,9 +31,4 @@ class LinkResource extends JsonResource
             'post' => new PostResource($this->resource->post),
         ];
     }
-
-    public function withResponse($request, $response)
-    {
-        $response->header('Access-Control-Allow-Origin', '*');
-    }
 }

@@ -62,9 +62,4 @@ class GroupResource extends JsonResource
             'cpp' => $this->cpp,
         ];
     }
-
-    public function withResponse($request, $response)
-    {
-        $response->header('Access-Control-Allow-Origin', '*');
-    }
 }
