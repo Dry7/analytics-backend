@@ -18,7 +18,7 @@
         "predis/predis": "^1.1",
         "sentry/sentry-laravel": "^0.11.0",
         "vkcom/vk-php-sdk": "^0.2.0",
-        "vladimir-yuldashev/laravel-queue-rabbitmq": "^7.0"
+        "vladimir-yuldashev/laravel-queue-rabbitmq": "^7.1.2"
     },
     "require-dev": {
         "barryvdh/laravel-ide-helper": "^2.4",
