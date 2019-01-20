@@ -13,7 +13,7 @@ services:
       POSTGRES_DB: analytics
 
   redis:
-    image: redis:alpine
+    image: redis:5.0.3-alpine3.8
     volumes:
       - ./storage/redis:/data
     ports:
@@ -28,7 +28,7 @@ services:
     working_dir: /var/www/analytics/backend
 
   rabbitmq:
-    image: rabbitmq:3.7.7-management-alpine
+    image: rabbitmq:3.7.8-management-alpine
     volumes:
       - ./docker/rabbitmq/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
       - ./storage/rabbitmq:/var/lib/rabbitmq/mnesia
@@ -53,7 +53,7 @@ services:
         hard: -1
 
   influxdb:
-    image: influxdb:1.6-alpine
+    image: influxdb:1.7.3-alpine
     volumes:
       - ./storage/influxdb:/var/lib/influxdb
       - ./docker/influxdb/influxdb.conf:/etc/influxdb/influxdb.conf
@@ -107,12 +107,12 @@ services:
       SENTRY_DB_PASSWORD: analytics
       SENTRY_REDIS_HOST: redis
 
-  #  chronograf:
-  #    image: chronograf:1.7.7-alpine
-  #    ports:
-  #      - 8888:8888
-  #    links:
-  #      - influxdb
+  chronograf:
+    image: chronograf:1.7.7-alpine
+    ports:
+      - 8888:8888
+    links:
+      - influxdb
 
   adminer:
     image: adminer:latest
