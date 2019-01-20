@@ -4,29 +4,27 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\GroupsShortRequest;
 use App\Http\Resources\GroupResource;
 use App\Http\Resources\GroupShortCollection;
 use App\Http\Resources\LinkResource;
 use App\Models\Group;
-use Illuminate\Http\Request;
+use App\Services\GroupService;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class GroupController extends Controller
 {
-    public function groupsShort(Request $request): GroupShortCollection
+    /** @var GroupService */
+    private $service;
+
+    public function __construct(GroupService $service)
     {
-        $query = Group::query()
-            ->select(['id', 'title'])
-            ->orderBy('title', 'asc');
+        $this->service = $service;
+    }
 
-        if ($request->has('title')) { $query = $query->where('title', 'ilike', '%' . $request->input('title') . '%'); }
-
-        return new GroupShortCollection(
-            $query
-                ->offset($request->input('offset', 0))
-                ->limit($request->input('limit', 100))
-                ->get()
-        );
+    public function groupsShort(GroupsShortRequest $request): GroupShortCollection
+    {
+        return new GroupShortCollection($this->service->getShortList($request->getTitle(), $request->getOffset(), $request->getLimit()));
     }
 
     public function group(Group $group): GroupResource
