@@ -127,14 +127,14 @@ services:
     volumes:
       - .:/app
 
-  #  phpunit:
-  #    build: ./docker/php
-  #    command: vendor/bin/phpunit
-  #    volumes:
-  #    - .:/var/www/analytics/backend
-  #    links:
-  #      - postgres
-  #      - elasticsearch
+  phpunit:
+    build: ./docker/php
+    command: vendor/bin/phpunit
+    volumes:
+      - .:/var/www/analytics/backend
+    links:
+      - postgres
+      - elasticsearch
 
   teamcity-server:
     image: jetbrains/teamcity-server
