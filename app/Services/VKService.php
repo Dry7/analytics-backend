@@ -198,10 +198,10 @@ class VKService
             }
         }
 
-        if ($post['has_next_comments']) {
-            UpdatePostComments::dispatch(Network::VKONTAKTE, $group->source_id, $post['id'])
-                ->onQueue(config('analytics.queue.vk'));
-        }
+//        if ($post['has_next_comments']) {
+//            UpdatePostComments::dispatch(Network::VKONTAKTE, $group->source_id, $post['id'])
+//                ->onQueue(config('analytics.queue.vk'));
+//        }
 
         $this->saveLinks($model, (array)$post['links']);
     }
