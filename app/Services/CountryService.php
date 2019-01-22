@@ -14,6 +14,11 @@ class CountryService
     /** @var Earth */
     private $service;
 
+    /**
+     * CountryService constructor.
+     *
+     * @param Earth $service
+     */
     public function __construct(Earth $service)
     {
         $this->service = $service->setLocale(TranslationAgency::LANG_RUSSIAN);
@@ -21,6 +26,7 @@ class CountryService
 
     /**
      * @param string $address
+     *
      * @return null|string
      */
     public function getCountryCode(string $address): ?string
@@ -36,6 +42,9 @@ class CountryService
         return null;
     }
 
+    /**
+     * @return Collection
+     */
     public function getCountries(): Collection
     {
         return collect($this->service->getCountries())
@@ -44,6 +53,11 @@ class CountryService
             ->values();
     }
 
+    /**
+     * @param string $countryCode
+     *
+     * @return Collection
+     */
     public function getStates(string $countryCode): Collection
     {
         return collect($this->service->findOneByCode($countryCode)->getStates())
@@ -52,6 +66,12 @@ class CountryService
             ->values();
     }
 
+    /**
+     * @param string $countryCode
+     * @param string $stateCode
+     *
+     * @return Collection
+     */
     public function getCities(string $countryCode, string $stateCode): Collection
     {
         return collect(State::build($stateCode)->setLocale(TranslationAgency::LANG_RUSSIAN)->getCities())
