@@ -54,7 +54,7 @@ class AdRequest extends FormRequest
      */
     public function getGroupId(): ?array
     {
-        $groupId = $this->input('groupId', null);
+        $groupId = $this->input('groupId');
 
         if (is_array($groupId)) {
             return collect($groupId)
@@ -87,7 +87,7 @@ class AdRequest extends FormRequest
      */
     public function getLikesFrom(): ?int
     {
-        return $this->input('likes.from', null);
+        return $this->input('likes.from');
     }
 
     /**
@@ -95,7 +95,7 @@ class AdRequest extends FormRequest
      */
     public function getLikesTo(): ?int
     {
-        return $this->input('likes.to', null);
+        return $this->input('likes.to');
     }
 
     /**
@@ -103,7 +103,7 @@ class AdRequest extends FormRequest
      */
     public function getCommentsFrom(): ?int
     {
-        return $this->input('comments.from', null);
+        return $this->input('comments.from');
     }
 
     /**
@@ -111,7 +111,7 @@ class AdRequest extends FormRequest
      */
     public function getCommentsTo(): ?int
     {
-        return $this->input('comments.to', null);
+        return $this->input('comments.to');
     }
 
     /**
@@ -119,7 +119,7 @@ class AdRequest extends FormRequest
      */
     public function getSharesFrom(): ?int
     {
-        return $this->input('shares.from', null);
+        return $this->input('shares.from');
     }
 
     /**
@@ -127,7 +127,7 @@ class AdRequest extends FormRequest
      */
     public function getSharesTo(): ?int
     {
-        return $this->input('shares.to', null);
+        return $this->input('shares.to');
     }
 
     /**
@@ -135,7 +135,7 @@ class AdRequest extends FormRequest
      */
     public function getViewsFrom(): ?int
     {
-        return $this->input('views.from', null);
+        return $this->input('views.from');
     }
 
     /**
@@ -143,7 +143,7 @@ class AdRequest extends FormRequest
      */
     public function getViewsTo(): ?int
     {
-        return $this->input('views.to', null);
+        return $this->input('views.to');
     }
 
     /**
@@ -151,7 +151,7 @@ class AdRequest extends FormRequest
      */
     public function getIsVideo(): ?bool
     {
-        return $this->input('is_video', null);
+        return $this->input('is_video');
     }
 
     /**
@@ -159,7 +159,7 @@ class AdRequest extends FormRequest
      */
     public function getIsGif(): ?bool
     {
-        return $this->input('is_gif', null);
+        return $this->input('is_gif');
     }
 
     /**
@@ -167,7 +167,7 @@ class AdRequest extends FormRequest
      */
     public function getIsShared(): ?bool
     {
-        return $this->input('is_shared', null);
+        return $this->input('is_shared');
     }
 
     /**
@@ -175,7 +175,7 @@ class AdRequest extends FormRequest
      */
     public function getUrl(): ?string
     {
-        return $this->input('url', null);
+        return $this->input('url');
     }
 
     /**
