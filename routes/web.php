@@ -15,7 +15,6 @@ Route::middleware([\App\Http\Middleware\AccessControl::class])->group(function (
     Route::get('/api/countries/{countryCode}/states/{stateCode}/cities', 'CountryController@cities');
 });
 
-
 Route::get('/test/phpinfo', function () {
     phpinfo();
 });
