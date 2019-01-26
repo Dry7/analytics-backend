@@ -128,4 +128,9 @@ class GroupService
     {
         return $group->links()->with('post')->get()->sortByDesc('post.date');
     }
+
+    public function cursor(): \Iterator
+    {
+        return Group::cursor();
+    }
 }

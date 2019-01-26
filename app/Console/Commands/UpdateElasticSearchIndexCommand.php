@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Console\Commands;
 
-use App\Models\Group;
 use App\Services\ElasticSearchService;
+use App\Services\GroupService;
 use Illuminate\Console\Command;
 
 class UpdateElasticSearchIndexCommand extends Command
@@ -28,15 +28,15 @@ class UpdateElasticSearchIndexCommand extends Command
      * Execute the console command.
      *
      * @param ElasticSearchService $service
+     * @param GroupService $groupService
      *
      * @return mixed
      */
-    public function handle(ElasticSearchService $service)
+    public function handle(ElasticSearchService $service, GroupService $groupService)
     {
         $service->createIndex();
-        foreach (Group::cursor() as $group) {
+        foreach ($groupService->cursor() as $group) {
             $this->info($group->id);
-//            $service->delete($group);
             $service->index($group);
         }
     }
