@@ -3,6 +3,7 @@ FROM php:7.3-fpm-alpine3.8
 LABEL maintainer="Andrey Shilov <andrey.dry7.shilov@yandex.ru>"
 
 ENV NGINX_VERSION 1.15.8
+ENV XDEBUG_VERSION 2.7.0beta1
 
 RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
 	&& CONFIG="\
@@ -141,7 +142,7 @@ RUN apk add --no-cache git postgresql-dev
 RUN docker-php-ext-install pdo pdo_pgsql bcmath
 
 RUN apk add --no-cache $PHPIZE_DEPS \
-    && pecl install xdebug-2.7.0beta1 \
+    && pecl install xdebug-$XDEBUG_VERSION \
     && docker-php-ext-enable xdebug
 
 ARG DOCKERFILE_PATH
