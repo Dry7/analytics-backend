@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Services;
+namespace Tests\Http;
 
 use App\Http\Controllers\AdController;
 use App\Http\Requests\AdRequest;
