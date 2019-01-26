@@ -140,6 +140,10 @@ RUN apk update
 RUN apk add --no-cache git postgresql-dev
 RUN docker-php-ext-install pdo pdo_pgsql bcmath
 
+RUN apk add --no-cache $PHPIZE_DEPS \
+    && pecl install xdebug-2.7.0beta1 \
+    && docker-php-ext-enable xdebug
+
 ARG DOCKERFILE_PATH
 
 RUN if [ "$DOCKERFILE_PATH" == "" ]; then export DOCKERFILE_PATH=.; fi
@@ -152,7 +156,7 @@ RUN if [ "$DOCKERFILE_PATH" != "." ]; then ls; fi
 
 WORKDIR /var/www/analytics/backend
 
-EXPOSE 80 9000
+EXPOSE 80
 
 STOPSIGNAL SIGTERM
 
