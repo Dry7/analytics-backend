@@ -54,7 +54,8 @@ class GroupRequest extends FormRequest
             'avg_shares_per_post_to' => 'nullable|integer',
             'avg_views_per_post_from' => 'nullable|integer',
             'avg_views_per_post_to' => 'nullable|integer',
-            'sort' => 'nullable|string|in:asc,desc',
+            'sort' => 'nullable|string',
+            'direction' => 'nullable|string|in:asc,desc',
             'offset' => 'nullable|integer',
             'limit' => 'nullable|integer',
         ];

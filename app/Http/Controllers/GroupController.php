@@ -11,6 +11,7 @@ use App\Http\Resources\GroupShortCollection;
 use App\Http\Resources\LinkResource;
 use App\Models\Group;
 use App\Services\GroupService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class GroupController extends Controller
@@ -31,7 +32,7 @@ class GroupController extends Controller
     /**
      * @param GroupRequest $request
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function groups(GroupRequest $request)
     {
