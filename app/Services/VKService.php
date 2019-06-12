@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Services;
 
-use App\Jobs\UpdatePostComments;
 use App\Jobs\UpdatePostExportHash;
 use App\Models\Contact;
 use App\Models\Group;
@@ -44,7 +43,7 @@ class VKService
 
         $this->saveContacts($group->id, (array)$data['contacts']);
 
-        if ((int)$group->members < 5000) {
+        if ((int)$group->members < config('analytics.scraper.process_wall_minimal_members')) {
             return;
         }
 
@@ -77,6 +76,7 @@ class VKService
             'likes' => $group->getTotalLikes(),
             'shares' => $group->getTotalShares(),
             'comments' => $group->getTotalComments(),
+            'views' => $group->getTotalViews(),
             'posts_links' => $group->getTotalLinks(),
             'avg_posts_links' => $group->getAveragePostsLinks(),
             'ads' => $group->getTotalAds(),
@@ -104,7 +104,10 @@ class VKService
     /**
      * @param Group $group
      * @param array $today
+     *
      * @return array
+     *
+     * @throws \Exception
      */
     public function calculateIncrements(Group $group, array $today): array
     {
