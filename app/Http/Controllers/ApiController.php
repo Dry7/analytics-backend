@@ -25,6 +25,11 @@ class ApiController extends Controller
         $service->saveAll((array)json_decode($request->getContent()));
     }
 
+    /**
+     * @param string $network
+     * @param Request $request
+     * @param VKService $service
+     */
     public function touch(string $network, Request $request, VKService $service)
     {
         $service->touch((int)$request->input('source_id'));
@@ -44,6 +49,13 @@ class ApiController extends Controller
         return new SuccessResponse();
     }
 
+    /**
+     * @param string $network
+     * @param PostCommentsRequest $request
+     * @param VKService $service
+     *
+     * @return SuccessResponse
+     */
     public function savePostComments(string $network, PostCommentsRequest $request, VKService $service)
     {
         $service->savePostComments($request->getGroupId(), $request->getPostId(), $request->getComments());
