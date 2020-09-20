@@ -78,7 +78,7 @@ class AdService
                 return $query->where('views', '<=', $request->getViewsTo());
             })
             ->offset($request->getOffset())
-            ->limit($request->getLikesTo())
+            ->limit($request->getLimit())
             ->orderByDesc('likes')
             ->get();
     }

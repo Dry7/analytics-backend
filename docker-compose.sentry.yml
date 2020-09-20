@@ -1,0 +1,41 @@
+version: "3.7"
+services:
+  sentry:
+    image: sentry
+    links:
+      - redis
+      - postgres
+    ports:
+      - 9999:9000
+    environment:
+      SENTRY_SECRET_KEY: 'QRfG0Kx8T45l0CB2bRz1EkzQTyIg3LMc'
+      SENTRY_POSTGRES_HOST: postgres
+      SENTRY_DB_USER: analytics
+      SENTRY_DB_PASSWORD: analytics
+      SENTRY_REDIS_HOST: redis
+
+  sentry-cron:
+    image: sentry
+    links:
+      - redis
+      - postgres
+    command: 'sentry run cron'
+    environment:
+      SENTRY_SECRET_KEY: 'QRfG0Kx8T45l0CB2bRz1EkzQTyIg3LMc'
+      SENTRY_POSTGRES_HOST: postgres
+      SENTRY_DB_USER: analytics
+      SENTRY_DB_PASSWORD: analytics
+      SENTRY_REDIS_HOST: redis
+
+  sentry-worker:
+    image: sentry
+    links:
+      - redis
+      - postgres
+    command: 'sentry run worker'
+    environment:
+      SENTRY_SECRET_KEY: 'QRfG0Kx8T45l0CB2bRz1EkzQTyIg3LMc'
+      SENTRY_POSTGRES_HOST: postgres
+      SENTRY_DB_USER: analytics
+      SENTRY_DB_PASSWORD: analytics
+      SENTRY_REDIS_HOST: redis

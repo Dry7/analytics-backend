@@ -11,7 +11,7 @@ class AdRequest extends FormRequest
 {
     private const TIMEZONE = 'Europe/Moscow';
     private const DEFAULT_OFFSET = 0;
-    private const DEFAULT_LIMIT = 100;
+    private const DEFAULT_LIMIT = 10;
 
     /**
      * Determine if the user is authorized to make this request.

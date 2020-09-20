@@ -1,0 +1,37 @@
+version: "3.7"
+services:
+  postgres:
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER: analytics
+      POSTGRES_PASSWORD: analytics
+      POSTGRES_DB: analytics
+
+  redis:
+    ports:
+      - 6379:6379
+
+  php:
+    ports:
+      - 8080:80
+
+  rabbitmq:
+    ports:
+      - 15672:15672
+      - 5672:5672
+
+  elasticsearch:
+    ports:
+      - 9200:9200
+
+  influxdb:
+    ports:
+      - 8086:8086
+      - 8083:8083
+    environment:
+      INFLUXDB_DB: analytics
+      INFLUXDB_ADMIN_USER: 'admin'
+      INFLUXDB_ADMIN_PASSWORD: 'analytics'
+      INFLUXDB_USER: 'analytics'
+      INFLUXDB_USER_PASSWORD: 'analytics'
