@@ -18,3 +18,7 @@ npm-debug.log
 yarn-error.log
 .env
 /docker/rabbitmq/rabbitmq.conf
+docker-compose.override.yml
+docker-compose.sentry.override.yml
+docker-compose.teamcity.override.yml
+docker-compose.ui.override.yml
